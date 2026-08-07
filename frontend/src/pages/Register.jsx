@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck, AlertCircle, ArrowLeft } from 'lucide-react';
 import PinPickerMap from '../components/map/PinPickerMap';
 import axios from 'axios';
 
@@ -139,28 +139,40 @@ export default function Register() {
               res.data.address?.city ||
               'Central Zone';
             setArea(detectedArea);
-            setAddress(res.data.display_name || '');
+            if (res.data.display_name) {
+              setAddress(res.data.display_name);
+            }
           }
         } catch (err) {
-          setArea(`Lat: ${lat.toFixed(3)}, Lng: ${lng.toFixed(3)}`);
+          // Fallback
         } finally {
           setDetectingLoc(false);
         }
       },
       (err) => {
+        alert('Could not get your location. Please type your area manually.');
         setDetectingLoc(false);
-        alert('Could not access live location. Please allow browser location access or select manually on map.');
       }
     );
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 py-8 relative">
+      {/* Top Left Floating Back to Home Link */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-teal-400 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl transition shadow"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Home
+      </Link>
+
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 relative mt-12 sm:mt-0">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-black text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20">
-            JS
-          </div>
+          <Link to="/" className="inline-block">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-black text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20 hover:scale-105 transition">
+              JS
+            </div>
+          </Link>
           <h2 className="text-2xl font-black text-white">Create Citizen Account</h2>
           <p className="text-xs text-slate-400">All fields & OTP Verification are required to register</p>
         </div>

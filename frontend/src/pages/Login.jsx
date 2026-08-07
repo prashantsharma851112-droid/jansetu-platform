@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Wrench, User, Lock, Mail, Eye, EyeOff, ArrowRight, Loader2, Phone, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Shield, Wrench, User, Lock, Mail, Eye, EyeOff, ArrowRight, Loader2, Phone, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function Login() {
   const [loginMode, setLoginMode] = useState('PASSWORD'); // 'PASSWORD' | 'OTP'
@@ -82,12 +82,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative">
+      {/* Top Left Floating Back to Home Link */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-teal-400 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl transition shadow"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Home
+      </Link>
+
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6 relative mt-12 sm:mt-0">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-black text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20">
-            JS
-          </div>
+          <Link to="/" className="inline-block">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-black text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20 hover:scale-105 transition">
+              JS
+            </div>
+          </Link>
           <h2 className="text-2xl font-black text-white">Sign In to JanSetu</h2>
           <p className="text-xs text-slate-400">Access your Citizen, Worker, or Admin account</p>
         </div>
