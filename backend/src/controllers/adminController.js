@@ -55,13 +55,18 @@ exports.replyInquiry = async (req, res) => {
     );
     if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
 
-    // Send email response
-    await sendInquiryReplyEmail({
-      toEmail: inquiry.email,
-      recipientName: inquiry.name,
-      citizenMessage: inquiry.message,
-      adminReply: replyMessage,
-    });
+    // Send email response safely
+    let emailSent = false;
+    try {
+      emailSent = await sendInquiryReplyEmail({
+        toEmail: inquiry.email,
+        recipientName: inquiry.name,
+        citizenMessage: inquiry.message,
+        adminReply: replyMessage,
+      });
+    } catch (emailError) {
+      console.error('Inquiry Reply Email Error:', emailError);
+    }
 
     // Send in-app notification if citizen is registered user
     const citizenUser = await User.findOne({ email: inquiry.email.toLowerCase() });
