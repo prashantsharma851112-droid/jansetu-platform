@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck } from 'lucide-react';
 import PinPickerMap from '../components/map/PinPickerMap';
 import axios from 'axios';
 
@@ -13,11 +13,19 @@ export default function Register() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
+
+  // OTP State for Registration
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [demoOtp, setDemoOtp] = useState('');
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [detectingLoc, setDetectingLoc] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
 
-  const { user, register } = useAuth();
+  const { user, register, sendOtp, verifyOtp } = useAuth();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -27,6 +35,42 @@ export default function Register() {
       else navigate('/citizen', { replace: true });
     }
   }, [user, navigate]);
+
+  const handleSendRegOtp = async () => {
+    if (!phone || phone.trim().length < 10) {
+      alert('Please enter a valid 10-digit mobile phone number first.');
+      return;
+    }
+    try {
+      setVerifyingOtp(true);
+      const res = await sendOtp(phone);
+      if (res.success) {
+        setOtpSent(true);
+        if (res.otp) setDemoOtp(res.otp);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error sending OTP');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleVerifyRegOtp = async () => {
+    if (!phone || !otpCode) return;
+    try {
+      setVerifyingOtp(true);
+      const res = await verifyOtp({ phone, otp: otpCode, name, area });
+      if (res?.user) {
+        setPhoneVerified(true);
+        setOtpSent(false);
+        navigate('/citizen');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Invalid OTP code');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
@@ -151,8 +195,27 @@ export default function Register() {
             </div>
           </div>
 
+          {/* Phone Number Field with OTP Verification */}
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Phone Number</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-300">Phone Number</label>
+              {phoneVerified ? (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" /> Verified OTP
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSendRegOtp}
+                  disabled={verifyingOtp || !phone}
+                  className="text-[10px] font-bold text-teal-400 hover:text-teal-300 bg-teal-950/80 hover:bg-teal-900 border border-teal-800/80 px-2 py-0.5 rounded flex items-center gap-1 transition"
+                >
+                  {verifyingOtp ? <Loader2 className="w-3 h-3 animate-spin" /> : <KeyRound className="w-3 h-3 text-teal-400" />}
+                  Verify OTP
+                </button>
+              )}
+            </div>
+
             <div className="relative">
               <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
@@ -163,6 +226,36 @@ export default function Register() {
                 className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 text-xs text-white rounded-xl focus:ring-1 focus:ring-teal-500 outline-none"
               />
             </div>
+
+            {/* In-Line OTP Box if Sent */}
+            {otpSent && !phoneVerified && (
+              <div className="mt-2 p-2.5 bg-slate-950 border border-teal-800/80 rounded-xl space-y-2">
+                {demoOtp && (
+                  <div className="text-[10px] text-teal-400 font-mono font-bold flex items-center justify-between">
+                    <span>SMS OTP: {demoOtp}</span>
+                    <span className="text-[9px] text-slate-500">Demo Code</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-700 text-xs text-white rounded-lg text-center font-mono outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyRegOtp}
+                    disabled={verifyingOtp || otpCode.length < 6}
+                    className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg transition shrink-0"
+                  >
+                    Verify
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

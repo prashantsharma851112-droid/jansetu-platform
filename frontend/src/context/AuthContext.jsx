@@ -55,12 +55,19 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const updateProfile = async (data) => {
-    const res = await API.put('/auth/profile', data);
-    if (res.data.success) {
-      setUser(res.data.user);
-    }
+  const sendOtp = async (phone) => {
+    const res = await API.post('/auth/send-otp', { phone });
     return res.data;
+  };
+
+  const verifyOtp = async (otpData) => {
+    const res = await API.post('/auth/verify-otp', otpData);
+    if (res.data.success) {
+      localStorage.setItem('jansetu_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return res.data;
+    }
   };
 
   return (
@@ -73,6 +80,8 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateProfile,
+        sendOtp,
+        verifyOtp,
         role: user ? user.role : null,
       }}
     >
