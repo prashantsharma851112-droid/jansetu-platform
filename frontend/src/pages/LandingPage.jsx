@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Wrench, User, CheckCircle2, MapPin, ArrowRight, Activity, Users,
-  Layers, Sparkles, ChevronLeft, ChevronRight, Phone, Mail, Send, Info, Eye, Check
+  Layers, Sparkles, Phone, Mail, Send, Info, Eye, Check, Camera, Bell, Star,
+  GitCommit, Network, Zap, CheckSquare, Compass
 } from 'lucide-react';
 import API from '../services/api';
 
@@ -52,8 +53,79 @@ const roleCards = [
   },
 ];
 
+const flowGraphNodes = [
+  {
+    id: 1,
+    step: '01',
+    title: 'Geo-Spatial Capture',
+    desc: 'Citizen captures issue photos with auto-reverse geocoding & live GPS pin drop.',
+    icon: MapPin,
+    color: 'border-teal-500 text-teal-400 bg-teal-950/60',
+    lineColor: '#14b8a6',
+  },
+  {
+    id: 2,
+    step: '02',
+    title: 'Automated Routing',
+    desc: 'JanSetu engine classifies category & auto-dispatches ticket to targeted department.',
+    icon: Zap,
+    color: 'border-cyan-500 text-cyan-400 bg-cyan-950/60',
+    lineColor: '#06b6d4',
+  },
+  {
+    id: 3,
+    step: '03',
+    title: 'Field Officer Proof',
+    desc: 'Municipal worker claims ticket & uploads mandatory ground after-action photo.',
+    icon: Wrench,
+    color: 'border-amber-500 text-amber-400 bg-amber-950/60',
+    lineColor: '#f59e0b',
+  },
+  {
+    id: 4,
+    step: '04',
+    title: 'SLA Audit & Closure',
+    desc: 'Real-time timeline completes, citizen rates quality, & admin logs executive analytics.',
+    icon: Shield,
+    color: 'border-indigo-500 text-indigo-400 bg-indigo-950/60',
+    lineColor: '#6366f1',
+  },
+];
+
+const complaintSteps = [
+  {
+    stepNum: 'Step 1',
+    title: 'Pick Issue Category & Attach Photo',
+    desc: 'Select from 12 civic categories (Road Potholes, Water Leakage, Drainage, Garbage, Streetlights) and upload photo evidence.',
+    icon: Camera,
+    color: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+  },
+  {
+    stepNum: 'Step 2',
+    title: 'Pin Location on OpenStreetMap',
+    desc: 'Drop a pin on interactive Google/OpenStreetMap or tap "My Location" to auto-fill street address & landmark.',
+    icon: MapPin,
+    color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+  },
+  {
+    stepNum: 'Step 3',
+    title: 'Track Live Progress Timeline',
+    desc: 'Receive tracking code to monitor stage-by-stage updates (Submitted ➔ Assigned ➔ In Progress ➔ Resolved).',
+    icon: Activity,
+    color: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+  },
+  {
+    stepNum: 'Step 4',
+    title: 'Verify Ground Photo & Rate Service',
+    desc: 'Inspect mandatory after-photos uploaded by field officers and provide 5-star resolution feedback.',
+    icon: Star,
+    color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+  },
+];
+
 export default function LandingPage() {
   const [activeRoleIndex, setActiveRoleIndex] = useState(0);
+  const [activeNode, setActiveNode] = useState(1);
   const [stats, setStats] = useState({ total: 50, resolved: 32, rate: '92.4%' });
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSubmitted, setContactSubmitted] = useState(false);
@@ -84,6 +156,14 @@ export default function LandingPage() {
     setActiveRoleIndex((prev) => (prev - 1 + roleCards.length) % roleCards.length);
   };
 
+  const handleDragEnd = (event, info) => {
+    if (info.offset.x < -40) {
+      handleNext();
+    } else if (info.offset.x > 40) {
+      handlePrev();
+    }
+  };
+
   const handleContactSubmit = (e) => {
     e.preventDefault();
     if (!contactForm.name || !contactForm.email || !contactForm.message) return;
@@ -96,7 +176,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-teal-500 selection:text-slate-950 font-sans overflow-x-hidden pt-6">
-      {/* 1. 3D FLOATING IN-AIR ORBIT CAROUSEL (PURPOSE BUILT DASHBOARDS) */}
+      {/* 1. 3D SWIPEABLE TOUCH ORBIT CAROUSEL (NO SIDE ARROWS) */}
       <section className="py-16 md:py-24 border-t border-slate-900 relative overflow-hidden bg-slate-950/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           {/* Role Pills Navigation */}
@@ -116,33 +196,20 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* 3D Circular Orbit Wheel Container */}
-          <div className="relative py-12 flex items-center justify-center min-h-[460px] perspective-1000">
-            {/* Center Orb */}
-            <div className="absolute w-40 h-40 bg-teal-500/10 rounded-full blur-2xl pointer-events-none animate-pulse" />
+          <p className="text-[11px] text-teal-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
+            👆 Swipe with finger or drag with mouse to switch portals
+          </p>
 
-            {/* Orbit Navigation Controls */}
-            <button
-              onClick={handlePrev}
-              className="absolute left-2 sm:left-12 z-40 p-3 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-800 shadow-2xl transition hover:scale-110"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-2 sm:right-12 z-40 p-3 bg-slate-900/90 hover:bg-slate-800 text-white rounded-2xl border border-slate-800 shadow-2xl transition hover:scale-110"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
+          {/* Touch Drag Orbit Wheel Container */}
+          <div className="relative py-8 flex items-center justify-center min-h-[460px] perspective-1000 select-none">
+            <div className="absolute w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
 
-            {/* Floating Orbit Cards */}
-            <div className="relative w-full max-w-lg h-[400px] flex items-center justify-center">
+            <div className="relative w-full max-w-lg h-[400px] flex items-center justify-center cursor-grab active:cursor-grabbing">
               <AnimatePresence mode="popLayout">
                 {roleCards.map((card, idx) => {
                   const position = (idx - activeRoleIndex + roleCards.length) % roleCards.length;
                   const IconComp = card.icon;
 
-                  // 3D Orbit transformations
                   let xOffset = 0;
                   let scale = 1;
                   let opacity = 1;
@@ -150,21 +217,18 @@ export default function LandingPage() {
                   let rotateY = 0;
 
                   if (position === 0) {
-                    // Active Front Card
                     xOffset = 0;
                     scale = 1.05;
                     opacity = 1;
                     zIndex = 30;
                     rotateY = 0;
                   } else if (position === 1) {
-                    // Right Card
                     xOffset = 180;
                     scale = 0.82;
                     opacity = 0.45;
                     zIndex = 10;
                     rotateY = -25;
                   } else {
-                    // Left Card
                     xOffset = -180;
                     scale = 0.82;
                     opacity = 0.45;
@@ -175,6 +239,10 @@ export default function LandingPage() {
                   return (
                     <motion.div
                       key={card.id}
+                      drag={position === 0 ? "x" : false}
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.2}
+                      onDragEnd={handleDragEnd}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
                         x: xOffset,
@@ -183,11 +251,11 @@ export default function LandingPage() {
                         zIndex,
                         rotateY,
                       }}
-                      transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
+                      transition={{ duration: 0.4, type: 'spring', stiffness: 120 }}
                       onClick={() => setActiveRoleIndex(idx)}
-                      className={`absolute w-full p-6 sm:p-8 rounded-3xl bg-slate-900/90 backdrop-blur-xl border ${
+                      className={`absolute w-full p-6 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-xl border ${
                         position === 0 ? `${card.borderColor} ring-2 ${card.ringColor} shadow-2xl ${card.glowColor}` : 'border-slate-800'
-                      } cursor-pointer text-left space-y-4`}
+                      } text-left space-y-4 touch-pan-x`}
                     >
                       <div className="flex items-center justify-between">
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${card.color} text-slate-950 flex items-center justify-center font-bold shadow-lg`}>
@@ -203,7 +271,6 @@ export default function LandingPage() {
                         <p className="text-xs text-slate-400 mt-2 leading-relaxed">{card.description}</p>
                       </div>
 
-                      {/* Feature Pills */}
                       <div className="grid grid-cols-2 gap-2 pt-2">
                         {card.features.map((feat, fIdx) => (
                           <div key={fIdx} className="text-[10px] font-semibold text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 flex items-center gap-1.5">
@@ -232,65 +299,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. ABOUT US SECTION */}
-      <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <span className="text-xs uppercase tracking-widest font-bold text-teal-400 flex items-center gap-1.5">
-              <Info className="w-4 h-4" /> About JanSetu
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
-              Bridging Citizens & Governance with 100% Transparency
-            </h2>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              JanSetu ("Bridge of the People") was engineered to transform how local civic complaints are raised, assigned, and resolved. By removing bureaucratic opacity, JanSetu provides a unified digital ecosystem where citizens gain real-time visibility, field workers receive structured tasks, and city managers access predictive spatial intelligence.
-            </p>
+      {/* 2. FLOW GRAPH PIPELINE (ABOUT JANSETU CONNECTED NODES) */}
+      <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs uppercase tracking-widest font-bold text-teal-400 flex items-center justify-center gap-1.5">
+            <Network className="w-4 h-4" /> System Architecture
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-white">How JanSetu Architecture Flows</h2>
+          <p className="text-slate-400 text-sm">
+            Connected data nodes linked by real-time WebSockets and spatial geocoding logic.
+          </p>
+        </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                <MapPin className="w-5 h-5 text-teal-400 mb-2" />
-                <h4 className="text-xs font-bold text-white">Pin-Drop Mapping</h4>
-                <p className="text-[11px] text-slate-400 mt-1">Precise OpenStreetMap spatial pin drop with auto reverse-geocoding.</p>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                <Activity className="w-5 h-5 text-emerald-400 mb-2" />
-                <h4 className="text-xs font-bold text-white">Live Courier Timeline</h4>
-                <p className="text-[11px] text-slate-400 mt-1">Watch ticket updates progress stage by stage with proof photos.</p>
-              </div>
-            </div>
-          </div>
+        {/* Connected SVG Flow Line Grid */}
+        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6 z-10">
+          {flowGraphNodes.map((node, index) => {
+            const IconComp = node.icon;
+            const isActive = activeNode === node.id;
+            return (
+              <div
+                key={node.id}
+                onMouseEnter={() => setActiveNode(node.id)}
+                onClick={() => setActiveNode(node.id)}
+                className={`relative p-6 rounded-3xl bg-slate-900/90 border transition-all duration-300 cursor-pointer space-y-4 group ${
+                  isActive
+                    ? `${node.color} ring-2 ring-teal-500/20 shadow-xl scale-[1.02]`
+                    : 'border-slate-800/80 hover:border-slate-700 bg-slate-900/50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center font-black">
+                    <IconComp className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-mono font-black opacity-60">NODE_{node.step}</span>
+                </div>
 
-          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-8 shadow-2xl relative">
-            <div className="absolute top-4 right-4 w-20 h-20 bg-teal-500/10 rounded-full blur-xl pointer-events-none" />
-            <h3 className="text-lg font-bold text-white mb-4">Core Governance Pillars</h3>
-            <ul className="space-y-4 text-xs text-slate-300">
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 font-bold text-[10px]">1</div>
                 <div>
-                  <strong className="text-white block">Community Pressure & Upvoting</strong>
-                  Upvote nearby public complaints to bring instant attention to urgent hazards.
+                  <h4 className="text-base font-black text-white group-hover:text-teal-400 transition">{node.title}</h4>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">{node.desc}</p>
                 </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 font-bold text-[10px]">2</div>
-                <div>
-                  <strong className="text-white block">Mandatory Proof of Work</strong>
-                  Field officers must upload ground after-photos before closing any ticket.
+
+                <div className="pt-2 flex items-center gap-2 text-[10px] uppercase tracking-wider font-bold text-slate-500">
+                  <GitCommit className="w-3.5 h-3.5 text-teal-400" /> Linked Data Pipeline
                 </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 font-bold text-[10px]">3</div>
-                <div>
-                  <strong className="text-white block">SLA Overdue Escalation Engine</strong>
-                  Unresolved issues auto-flag for executive review to guarantee prompt action.
-                </div>
-              </li>
-            </ul>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* 4. CONTACT US SECTION */}
+      {/* 3. STEP-BY-STEP USER COMPLAINT GUIDE (HOW TO FILE ANY COMPLAINT) */}
+      <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-slate-950">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs uppercase tracking-widest font-bold text-emerald-400 flex items-center justify-center gap-1.5">
+            <Compass className="w-4 h-4" /> Easy User Guide
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-white">4 Simple Steps to Raise Any Civic Issue</h2>
+          <p className="text-slate-400 text-sm">
+            Filing a civic grievance takes under 60 seconds with transparent stage-by-stage tracking.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {complaintSteps.map((s, idx) => {
+            const IconComp = s.icon;
+            return (
+              <div
+                key={idx}
+                className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/40 transition-all duration-300 space-y-4 relative group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase font-black px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-teal-400">
+                    {s.stepNum}
+                  </span>
+                  <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${s.color}`}>
+                    <IconComp className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <h3 className="text-base font-black text-white leading-snug group-hover:text-teal-300 transition">
+                  {s.title}
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">{s.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 4. CONTACT & SUPPORT SECTION */}
       <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
           <span className="text-xs uppercase tracking-widest font-bold text-emerald-400">Get in Touch</span>
@@ -299,7 +396,6 @@ export default function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Info Card */}
           <div className="space-y-4">
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0 font-bold">
@@ -332,7 +428,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Quick Inquiry Form */}
           <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
             <h3 className="text-lg font-bold text-white">Send Inquiry / Feedback</h3>
 
