@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Wrench, User, CheckCircle2, MapPin, ArrowRight, Activity, Users,
   Layers, Sparkles, Phone, Mail, Send, Info, Eye, Check, Camera, Bell, Star,
-  GitCommit, Network, Zap, CheckSquare, Compass
+  GitCommit, Network, Zap, CheckSquare, Compass, ChevronDown, ChevronUp, MoveVertical
 } from 'lucide-react';
 import API from '../services/api';
 
@@ -53,79 +53,53 @@ const roleCards = [
   },
 ];
 
-const flowGraphNodes = [
+const verticalFlowNodes = [
   {
     id: 1,
     step: '01',
-    title: 'Geo-Spatial Capture',
-    desc: 'Citizen captures issue photos with auto-reverse geocoding & live GPS pin drop.',
+    title: 'Geo-Spatial Capture & Pin Drop',
+    desc: 'Citizen captures issue photos with auto-reverse geocoding & live GPS pin drop on OpenStreetMap.',
     icon: MapPin,
-    color: 'border-teal-500 text-teal-400 bg-teal-950/60',
-    lineColor: '#14b8a6',
+    color: 'border-teal-500 text-teal-400 bg-teal-950/80',
+    glow: 'shadow-teal-500/30',
+    badge: 'Node 1: Capture',
   },
   {
     id: 2,
     step: '02',
-    title: 'Automated Routing',
-    desc: 'JanSetu engine classifies category & auto-dispatches ticket to targeted department.',
+    title: 'Automated Departmental Routing',
+    desc: 'JanSetu AI engine classifies category & auto-dispatches ticket to targeted department pool.',
     icon: Zap,
-    color: 'border-cyan-500 text-cyan-400 bg-cyan-950/60',
-    lineColor: '#06b6d4',
+    color: 'border-cyan-500 text-cyan-400 bg-cyan-950/80',
+    glow: 'shadow-cyan-500/30',
+    badge: 'Node 2: Dispatch',
   },
   {
     id: 3,
     step: '03',
-    title: 'Field Officer Proof',
-    desc: 'Municipal worker claims ticket & uploads mandatory ground after-action photo.',
+    title: 'Field Officer Proof-of-Work',
+    desc: 'Municipal worker claims ticket & uploads mandatory ground after-action photo evidence.',
     icon: Wrench,
-    color: 'border-amber-500 text-amber-400 bg-amber-950/60',
-    lineColor: '#f59e0b',
+    color: 'border-amber-500 text-amber-400 bg-amber-950/80',
+    glow: 'shadow-amber-500/30',
+    badge: 'Node 3: Execution',
   },
   {
     id: 4,
     step: '04',
-    title: 'SLA Audit & Closure',
-    desc: 'Real-time timeline completes, citizen rates quality, & admin logs executive analytics.',
+    title: 'SLA Analytics Audit & Rating',
+    desc: 'Real-time timeline completes, citizen rates resolution quality, & admin logs executive metrics.',
     icon: Shield,
-    color: 'border-indigo-500 text-indigo-400 bg-indigo-950/60',
-    lineColor: '#6366f1',
-  },
-];
-
-const complaintSteps = [
-  {
-    stepNum: 'Step 1',
-    title: 'Pick Issue Category & Attach Photo',
-    desc: 'Select from 12 civic categories (Road Potholes, Water Leakage, Drainage, Garbage, Streetlights) and upload photo evidence.',
-    icon: Camera,
-    color: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
-  },
-  {
-    stepNum: 'Step 2',
-    title: 'Pin Location on OpenStreetMap',
-    desc: 'Drop a pin on interactive Google/OpenStreetMap or tap "My Location" to auto-fill street address & landmark.',
-    icon: MapPin,
-    color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-  },
-  {
-    stepNum: 'Step 3',
-    title: 'Track Live Progress Timeline',
-    desc: 'Receive tracking code to monitor stage-by-stage updates (Submitted ➔ Assigned ➔ In Progress ➔ Resolved).',
-    icon: Activity,
-    color: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-  },
-  {
-    stepNum: 'Step 4',
-    title: 'Verify Ground Photo & Rate Service',
-    desc: 'Inspect mandatory after-photos uploaded by field officers and provide 5-star resolution feedback.',
-    icon: Star,
-    color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    color: 'border-indigo-500 text-indigo-400 bg-indigo-950/80',
+    glow: 'shadow-indigo-500/30',
+    badge: 'Node 4: Governance',
   },
 ];
 
 export default function LandingPage() {
   const [activeRoleIndex, setActiveRoleIndex] = useState(0);
-  const [activeNode, setActiveNode] = useState(1);
+  const [activeFlowIndex, setActiveFlowIndex] = useState(0);
+  const [hoverRating, setHoverRating] = useState(5);
   const [stats, setStats] = useState({ total: 50, resolved: 32, rate: '92.4%' });
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSubmitted, setContactSubmitted] = useState(false);
@@ -148,19 +122,27 @@ export default function LandingPage() {
     fetchStats();
   }, []);
 
-  const handleNext = () => {
+  const handleNextRole = () => {
     setActiveRoleIndex((prev) => (prev + 1) % roleCards.length);
   };
 
-  const handlePrev = () => {
+  const handlePrevRole = () => {
     setActiveRoleIndex((prev) => (prev - 1 + roleCards.length) % roleCards.length);
   };
 
-  const handleDragEnd = (event, info) => {
+  const handleRoleDragEnd = (event, info) => {
     if (info.offset.x < -40) {
-      handleNext();
+      handleNextRole();
     } else if (info.offset.x > 40) {
-      handlePrev();
+      handlePrevRole();
+    }
+  };
+
+  const handleFlowDragEnd = (event, info) => {
+    if (info.offset.y < -30) {
+      setActiveFlowIndex((prev) => (prev + 1) % verticalFlowNodes.length);
+    } else if (info.offset.y > 30) {
+      setActiveFlowIndex((prev) => (prev - 1 + verticalFlowNodes.length) % verticalFlowNodes.length);
     }
   };
 
@@ -176,7 +158,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-teal-500 selection:text-slate-950 font-sans overflow-x-hidden pt-6">
-      {/* 1. 3D SWIPEABLE TOUCH ORBIT CAROUSEL (NO SIDE ARROWS) */}
+      {/* 1. 3D SWIPEABLE TOUCH ORBIT CAROUSEL WITH CURVED ROPE CABLE */}
       <section className="py-16 md:py-24 border-t border-slate-900 relative overflow-hidden bg-slate-950/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           {/* Role Pills Navigation */}
@@ -197,14 +179,35 @@ export default function LandingPage() {
           </div>
 
           <p className="text-[11px] text-teal-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
-            👆 Swipe with finger or drag with mouse to switch portals
+            👆 Swipe left/right with finger or drag with mouse to switch portals
           </p>
 
-          {/* Touch Drag Orbit Wheel Container */}
+          {/* Touch Drag Orbit Container with Glowing Rope Background */}
           <div className="relative py-8 flex items-center justify-center min-h-[460px] perspective-1000 select-none">
-            <div className="absolute w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+            {/* Curved Glowing Rope SVG background passing through cards */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60 hidden sm:block"
+              viewBox="0 0 1000 400"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M 50 200 C 250 350, 450 50, 650 320 C 800 120, 900 280, 950 200"
+                fill="none"
+                stroke="url(#rope-gradient)"
+                strokeWidth="5"
+                strokeDasharray="12 8"
+                className="animate-pulse"
+              />
+              <defs>
+                <linearGradient id="rope-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#14b8a6" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#6366f1" />
+                </linearGradient>
+              </defs>
+            </svg>
 
-            <div className="relative w-full max-w-lg h-[400px] flex items-center justify-center cursor-grab active:cursor-grabbing">
+            <div className="relative w-full max-w-lg h-[400px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10">
               <AnimatePresence mode="popLayout">
                 {roleCards.map((card, idx) => {
                   const position = (idx - activeRoleIndex + roleCards.length) % roleCards.length;
@@ -242,7 +245,7 @@ export default function LandingPage() {
                       drag={position === 0 ? "x" : false}
                       dragConstraints={{ left: 0, right: 0 }}
                       dragElastic={0.2}
-                      onDragEnd={handleDragEnd}
+                      onDragEnd={handleRoleDragEnd}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
                         x: xOffset,
@@ -299,91 +302,304 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 2. FLOW GRAPH PIPELINE (ABOUT JANSETU CONNECTED NODES) */}
-      <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+      {/* 2. VERTICAL TOUCH-SWIPE FLOW GRAPH WITH CONNECTED ROPE CABLE (HOW JANSETU ARCHITECTURE FLOWS) */}
+      <section className="py-16 md:py-24 border-t border-slate-900 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
           <span className="text-xs uppercase tracking-widest font-bold text-teal-400 flex items-center justify-center gap-1.5">
-            <Network className="w-4 h-4" /> System Architecture
+            <Network className="w-4 h-4" /> Vertical System Architecture
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-white">How JanSetu Architecture Flows</h2>
           <p className="text-slate-400 text-sm">
-            Connected data nodes linked by real-time WebSockets and spatial geocoding logic.
+            Interactive vertical pipeline connected by real-time WebSockets & continuous energy thread cable.
+          </p>
+          <p className="text-[11px] text-cyan-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse pt-1">
+            <MoveVertical className="w-3.5 h-3.5" /> Swipe UP/DOWN with finger or drag to navigate vertical nodes
           </p>
         </div>
 
-        {/* Connected SVG Flow Line Grid */}
-        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6 z-10">
-          {flowGraphNodes.map((node, index) => {
-            const IconComp = node.icon;
-            const isActive = activeNode === node.id;
-            return (
-              <div
-                key={node.id}
-                onMouseEnter={() => setActiveNode(node.id)}
-                onClick={() => setActiveNode(node.id)}
-                className={`relative p-6 rounded-3xl bg-slate-900/90 border transition-all duration-300 cursor-pointer space-y-4 group ${
-                  isActive
-                    ? `${node.color} ring-2 ring-teal-500/20 shadow-xl scale-[1.02]`
-                    : 'border-slate-800/80 hover:border-slate-700 bg-slate-900/50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center font-black">
-                    <IconComp className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-mono font-black opacity-60">NODE_{node.step}</span>
-                </div>
+        {/* Vertical Flow Container with Vertical Curved Rope SVG Line */}
+        <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
+          {/* Vertical Curved Rope SVG Line */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
+            viewBox="0 0 600 600"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M 300 20 C 150 150, 450 300, 300 450 C 200 520, 400 560, 300 580"
+              fill="none"
+              stroke="url(#vertical-rope-gradient)"
+              strokeWidth="5"
+              strokeDasharray="10 8"
+              className="animate-pulse"
+            />
+            <defs>
+              <linearGradient id="vertical-rope-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#14b8a6" />
+                <stop offset="33%" stopColor="#06b6d4" />
+                <stop offset="66%" stopColor="#f59e0b" />
+                <stop offset="100%" stopColor="#6366f1" />
+              </linearGradient>
+            </defs>
+          </svg>
 
-                <div>
-                  <h4 className="text-base font-black text-white group-hover:text-teal-400 transition">{node.title}</h4>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">{node.desc}</p>
-                </div>
+          {/* Swipeable Vertical Cards Container */}
+          <div className="relative w-full max-w-xl h-[420px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y">
+            <AnimatePresence mode="popLayout">
+              {verticalFlowNodes.map((node, idx) => {
+                const pos = (idx - activeFlowIndex + verticalFlowNodes.length) % verticalFlowNodes.length;
+                const IconComp = node.icon;
 
-                <div className="pt-2 flex items-center gap-2 text-[10px] uppercase tracking-wider font-bold text-slate-500">
-                  <GitCommit className="w-3.5 h-3.5 text-teal-400" /> Linked Data Pipeline
-                </div>
-              </div>
-            );
-          })}
+                let yOffset = 0;
+                let scale = 1;
+                let opacity = 1;
+                let zIndex = 30;
+
+                if (pos === 0) {
+                  yOffset = 0;
+                  scale = 1.05;
+                  opacity = 1;
+                  zIndex = 30;
+                } else if (pos === 1) {
+                  yOffset = 140;
+                  scale = 0.86;
+                  opacity = 0.5;
+                  zIndex = 10;
+                } else if (pos === verticalFlowNodes.length - 1) {
+                  yOffset = -140;
+                  scale = 0.86;
+                  opacity = 0.5;
+                  zIndex = 10;
+                } else {
+                  yOffset = 240;
+                  scale = 0.7;
+                  opacity = 0;
+                  zIndex = 0;
+                }
+
+                return (
+                  <motion.div
+                    key={node.id}
+                    drag={pos === 0 ? "y" : false}
+                    dragConstraints={{ top: 0, bottom: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={handleFlowDragEnd}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{
+                      y: yOffset,
+                      scale,
+                      opacity,
+                      zIndex,
+                    }}
+                    transition={{ duration: 0.4, type: 'spring', stiffness: 120 }}
+                    onClick={() => setActiveFlowIndex(idx)}
+                    className={`absolute w-full p-6 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-2xl border ${
+                      pos === 0 ? `${node.color} ring-2 ring-teal-500/30 shadow-2xl ${node.glow}` : 'border-slate-800/80 opacity-60'
+                    } text-left space-y-4`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center font-black shadow">
+                          <IconComp className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono uppercase font-bold text-teal-400 tracking-wider block">
+                            {node.badge}
+                          </span>
+                          <h3 className="text-lg font-black text-white">{node.title}</h3>
+                        </div>
+                      </div>
+                      <span className="text-xs font-mono font-black text-slate-500 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800">
+                        {node.step} / 04
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                      {node.desc}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[11px] font-bold pt-1">
+                      <span className="text-teal-400 flex items-center gap-1.5">
+                        <GitCommit className="w-3.5 h-3.5" /> Energy Thread Connected
+                      </span>
+                      {pos === 0 && (
+                        <span className="text-slate-400 text-[10px]">Tap next or swipe vertical</span>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Step Indicator Dots */}
+        <div className="flex justify-center gap-2 pt-4">
+          {verticalFlowNodes.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveFlowIndex(idx)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                activeFlowIndex === idx
+                  ? 'bg-teal-400 w-8 shadow-lg shadow-teal-500/50'
+                  : 'bg-slate-800 hover:bg-slate-700'
+              }`}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 3. STEP-BY-STEP USER COMPLAINT GUIDE (HOW TO FILE ANY COMPLAINT) */}
-      <section className="py-16 md:py-24 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-slate-950">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <span className="text-xs uppercase tracking-widest font-bold text-emerald-400 flex items-center justify-center gap-1.5">
-            <Compass className="w-4 h-4" /> Easy User Guide
+      {/* 3. MASTER-LEVEL GENIUS INTERACTIVE 4 SIMPLE STEPS SECTION */}
+      <section className="py-20 md:py-28 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3 relative z-10">
+          <span className="text-xs uppercase tracking-widest font-black text-emerald-400 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-800/80 inline-flex items-center gap-1.5">
+            <Compass className="w-4 h-4" /> Genius Resolution Engine
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">4 Simple Steps to Raise Any Civic Issue</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            4 Genius Steps to Resolve Any Grievance
+          </h2>
           <p className="text-slate-400 text-sm">
-            Filing a civic grievance takes under 60 seconds with transparent stage-by-stage tracking.
+            Architected for 100% civic transparency from ground report to executive audit.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {complaintSteps.map((s, idx) => {
-            const IconComp = s.icon;
-            return (
-              <div
-                key={idx}
-                className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/40 transition-all duration-300 space-y-4 relative group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase font-black px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-teal-400">
-                    {s.stepNum}
-                  </span>
-                  <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${s.color}`}>
-                    <IconComp className="w-5 h-5" />
-                  </div>
-                </div>
-
-                <h3 className="text-base font-black text-white leading-snug group-hover:text-teal-300 transition">
-                  {s.title}
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{s.desc}</p>
+        {/* Connected Step Cards Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+          {/* STEP 1 */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-teal-500/40 hover:border-teal-400 shadow-2xl hover:shadow-teal-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-black text-teal-400 px-3 py-1 rounded-xl bg-teal-950 border border-teal-800">
+                STEP_01
+              </span>
+              <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/30 flex items-center justify-center">
+                <Camera className="w-5 h-5" />
               </div>
-            );
-          })}
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-white group-hover:text-teal-300 transition">
+                Pick Category & Photo Evidence
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Choose from 12 civic categories (Roads, Water, Sanitation) and upload photo evidence.
+              </p>
+            </div>
+
+            {/* Interactive Preview Widget */}
+            <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800/80 space-y-2">
+              <span className="text-[9px] uppercase font-bold text-slate-500 block">Interactive Preview</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-teal-950 text-teal-300 border border-teal-800">🛠️ Potholes</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-800">💧 Water</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800">⚡ Power</span>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 2 */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-cyan-500/40 hover:border-cyan-400 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-black text-cyan-400 px-3 py-1 rounded-xl bg-cyan-950 border border-cyan-800">
+                STEP_02
+              </span>
+              <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center">
+                <MapPin className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-white group-hover:text-cyan-300 transition">
+                Interactive Pin Drop & GPS
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Drop pin on OpenStreetMap or tap "My Location" for precise reverse geocoding.
+              </p>
+            </div>
+
+            {/* Interactive Radar Pulse Widget */}
+            <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+                <span className="text-[10px] font-bold text-slate-300">Live GPS Locked</span>
+              </div>
+              <span className="text-[9px] font-mono text-cyan-400 font-bold">28.6139° N</span>
+            </div>
+          </div>
+
+          {/* STEP 3 */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-black text-amber-400 px-3 py-1 rounded-xl bg-amber-950 border border-amber-800">
+                STEP_03
+              </span>
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+                <Activity className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-white group-hover:text-amber-300 transition">
+                Live Courier Timeline Progress
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Watch ticket status move stage by stage with real-time Socket.io notifications.
+              </p>
+            </div>
+
+            {/* Interactive Timeline Progress Bar Widget */}
+            <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800/80 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] font-bold">
+                <span className="text-amber-400">Dispatch Stage</span>
+                <span className="text-slate-400">75%</span>
+              </div>
+              <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                <div className="w-3/4 h-full bg-gradient-to-r from-amber-500 to-yellow-300 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 4 */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-indigo-500/40 hover:border-indigo-400 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-black text-indigo-400 px-3 py-1 rounded-xl bg-indigo-950 border border-indigo-800">
+                STEP_04
+              </span>
+              <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+                <Star className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-black text-white group-hover:text-indigo-300 transition">
+                Inspect Photo Proof & Rate Quality
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Inspect mandatory ground after-photos uploaded by field officers and provide star feedback.
+              </p>
+            </div>
+
+            {/* Interactive Star Rating Widget */}
+            <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800/80 flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-400">Quality Rating</span>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    onMouseEnter={() => setHoverRating(star)}
+                    className={`w-3.5 h-3.5 cursor-pointer transition ${
+                      star <= hoverRating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
