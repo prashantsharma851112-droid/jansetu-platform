@@ -40,45 +40,45 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Dynamic Navigation Links based on role */}
-          <nav className="flex items-center gap-2 sm:gap-4 text-xs font-medium">
-            {user?.role === 'CITIZEN' && (
-              <>
-                <Link to="/citizen" className="hidden sm:block hover:text-teal-400 transition">My Complaints</Link>
-                <Link to="/citizen/raise" className="bg-teal-600 hover:bg-teal-500 text-white px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 shadow-md shadow-teal-600/30 transition text-xs">
-                  <PlusCircle className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Raise</span> Issue
-                </Link>
-              </>
-            )}
-
-            {user?.role === 'WORKER' && (
-              <Link to="/worker" className="text-amber-400 font-semibold hover:underline flex items-center gap-1 text-xs">
-                <Wrench className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Operations</span>
-              </Link>
-            )}
-
-            {user?.role === 'ADMIN' && (
-              <Link to="/admin" className="text-indigo-400 font-semibold hover:underline flex items-center gap-1 text-xs">
-                <Shield className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Command</span>
-              </Link>
-            )}
-          </nav>
-
           {/* User Info & Actions */}
           <div className="flex items-center gap-3">
+            {/* Role Navigation Links */}
+            <nav className="flex items-center gap-2 text-xs font-medium">
+              {user?.role === 'CITIZEN' && (
+                <>
+                  <Link to="/citizen" className="hidden md:block hover:text-teal-400 transition text-slate-300 font-semibold">My Complaints</Link>
+                  <Link to="/citizen/raise" className="bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-md shadow-teal-600/30 transition text-xs">
+                    <PlusCircle className="w-3.5 h-3.5" /> <span>Raise Issue</span>
+                  </Link>
+                </>
+              )}
+
+              {user?.role === 'WORKER' && (
+                <Link to="/worker" className="bg-amber-950/80 hover:bg-amber-900 border border-amber-800/80 text-amber-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition text-xs">
+                  <Wrench className="w-3.5 h-3.5" /> <span>Operations</span>
+                </Link>
+              )}
+
+              {user?.role === 'ADMIN' && (
+                <Link to="/admin" className="bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-800/80 text-indigo-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition text-xs">
+                  <Shield className="w-3.5 h-3.5" /> <span>Command Center</span>
+                </Link>
+              )}
+            </nav>
+
             {user ? (
               <>
                 <NotificationBell />
                 <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
                   <button
                     onClick={() => setShowProfile(true)}
-                    className="flex items-center gap-2 hover:bg-slate-800 p-1 rounded-xl transition text-left"
+                    className="flex items-center gap-2 hover:bg-slate-800 p-1.5 rounded-xl transition text-left"
                     title="View My Profile"
                   >
                     <img
                       src={user.avatar || 'https://i.pravatar.cc/150'}
                       alt={user.name}
-                      className="w-8 h-8 rounded-full border border-slate-700 object-cover"
+                      className="w-8 h-8 rounded-xl border border-slate-700 object-cover"
                     />
                     <div className="hidden sm:block text-left">
                       <span className="block text-xs font-bold text-slate-200 line-clamp-1 hover:text-teal-400">{user.name}</span>
@@ -91,23 +91,23 @@ export default function Navbar() {
                       navigate('/login');
                     }}
                     title="Logout"
-                    className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition ml-1"
+                    className="p-1.5 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800 transition ml-1"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
                 </div>
               </>
             ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/login" className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition">
-                Sign In
-              </Link>
-              <Link to="/register" className="text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-md">
-                Register
-              </Link>
-            </div>
-          )}
-        </div>
+              <div className="flex items-center gap-2">
+                <Link to="/login" className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-xl transition">
+                  Sign In
+                </Link>
+                <Link to="/register" className="text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white px-3.5 py-1.5 rounded-xl transition shadow-md">
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
       </div>
     </header>
     {showProfile && <UserProfileModal user={user} onClose={() => setShowProfile(false)} />}

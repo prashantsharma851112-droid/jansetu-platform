@@ -178,10 +178,6 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <p className="text-[11px] text-teal-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
-            👆 Swipe left/right with finger or drag with mouse to switch portals
-          </p>
-
           {/* Touch Drag Orbit Container with Glowing Rope Background */}
           <div className="relative py-8 flex items-center justify-center min-h-[460px] perspective-1000 select-none">
             {/* Curved Glowing Rope SVG background passing through cards */}
@@ -302,23 +298,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 2. VERTICAL TOUCH-SWIPE FLOW GRAPH WITH CONNECTED ROPE CABLE (HOW JANSETU ARCHITECTURE FLOWS) */}
-      <section className="py-16 md:py-24 border-t border-slate-900 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <span className="text-xs uppercase tracking-widest font-bold text-teal-400 flex items-center justify-center gap-1.5">
-            <Network className="w-4 h-4" /> Vertical System Architecture
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">How JanSetu Architecture Flows</h2>
-          <p className="text-slate-400 text-sm">
-            Interactive vertical pipeline connected by real-time WebSockets & continuous energy thread cable.
-          </p>
-          <p className="text-[11px] text-cyan-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse pt-1">
-            <MoveVertical className="w-3.5 h-3.5" /> Swipe UP/DOWN with finger or drag to navigate vertical nodes
-          </p>
-        </div>
-
-        {/* Vertical Flow Container with Vertical Curved Rope SVG Line */}
-        <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
+          {/* Vertical Flow Container with Vertical Curved Rope SVG Line */}
+          <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
           {/* Vertical Curved Rope SVG Line */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
@@ -454,15 +435,9 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3 relative z-10">
-          <span className="text-xs uppercase tracking-widest font-black text-emerald-400 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-800/80 inline-flex items-center gap-1.5">
-            <Compass className="w-4 h-4" /> Genius Resolution Engine
-          </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            4 Genius Steps to Resolve Any Grievance
+            4 Simple Steps to Resolve Any Grievance
           </h2>
-          <p className="text-slate-400 text-sm">
-            Architected for 100% civic transparency from ground report to executive audit.
-          </p>
         </div>
 
         {/* Connected Step Cards Grid */}
