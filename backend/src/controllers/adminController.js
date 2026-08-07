@@ -2,6 +2,50 @@ const Complaint = require('../models/Complaint');
 const Category = require('../models/Category');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const Inquiry = require('../models/Inquiry');
+
+exports.submitInquiry = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    const inquiry = await Inquiry.create({ name, email, message });
+    res.status(201).json({ success: true, message: 'Inquiry received successfully', inquiry });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getInquiries = async (req, res) => {
+  try {
+    const inquiries = await Inquiry.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, inquiries });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateInquiryStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const inquiry = await Inquiry.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
+    res.status(200).json({ success: true, inquiry });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deleteInquiry = async (req, res) => {
+  try {
+    const inquiry = await Inquiry.findByIdAndDelete(req.params.id);
+    if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
+    res.status(200).json({ success: true, message: 'Inquiry deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 exports.getAnalytics = async (req, res) => {
   try {
