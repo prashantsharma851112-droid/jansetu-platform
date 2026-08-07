@@ -1,10 +1,117 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Otp = require('../models/Otp');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'jansetu_secret', {
     expiresIn: '30d',
   });
+};
+
+const formatPhoneNumber = (phone) => {
+  if (!phone) return '';
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.length === 10) return `+91${cleaned}`;
+  if (cleaned.length === 12 && cleaned.startsWith('91')) return `+${cleaned}`;
+  return phone.startsWith('+') ? phone : `+${cleaned}`;
+};
+
+exports.sendOtp = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    const formattedPhone = formatPhoneNumber(phone);
+    if (formattedPhone.length < 10) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid 10-digit mobile number' });
+    }
+
+    // Generate 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Clear old OTPs for this phone
+    await Otp.deleteMany({ phone: formattedPhone });
+
+    // Store new OTP
+    await Otp.create({ phone: formattedPhone, code });
+
+    console.log(`📱 [SMS OTP SIMULATOR] Sent OTP ${code} to ${formattedPhone}`);
+
+    res.status(200).json({
+      success: true,
+      message: `OTP sent successfully to ${formattedPhone}`,
+      phone: formattedPhone,
+      otp: code, // Sent in response for instant demo testing & UI notification toast
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { phone, otp, name, area } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, message: 'Phone number and OTP code are required' });
+    }
+
+    const formattedPhone = formatPhoneNumber(phone);
+    const validOtp = await Otp.findOne({ phone: formattedPhone, code: otp.trim() });
+
+    if (!validOtp) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
+    }
+
+    // Delete used OTP
+    await Otp.deleteMany({ phone: formattedPhone });
+
+    // Find existing citizen user by phone or generated citizen email
+    const cleanDigits = formattedPhone.replace(/\D/g, '');
+    const generatedEmail = `${cleanDigits}@jansetu.citizen`;
+
+    let user = await User.findOne({
+      $or: [{ phone: formattedPhone }, { email: generatedEmail }],
+    });
+
+    // If new citizen user, create account
+    if (!user) {
+      user = await User.create({
+        name: name || `Citizen ${cleanDigits.slice(-4)}`,
+        email: generatedEmail,
+        phone: formattedPhone,
+        passwordHash: 'CitizenOTP@123',
+        area: area || 'Central Zone',
+        role: 'CITIZEN',
+      });
+    } else {
+      if (!user.isActive) {
+        return res.status(403).json({ success: false, message: 'Your account has been deactivated by Admin' });
+      }
+    }
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP Verified successfully',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        phone: user.phone,
+        address: user.address,
+        area: user.area,
+        department: user.department,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.register = async (req, res) => {
