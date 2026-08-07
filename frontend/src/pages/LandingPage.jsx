@@ -298,8 +298,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-          {/* Vertical Flow Container with Vertical Curved Rope SVG Line */}
-          <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
+      {/* 2. VERTICAL TOUCH-SWIPE FLOW GRAPH WITH CONNECTED ROPE CABLE */}
+      <section className="py-16 md:py-24 border-t border-slate-900 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
           {/* Vertical Curved Rope SVG Line */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
