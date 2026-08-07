@@ -71,6 +71,11 @@ exports.replyInquiry = async (req, res) => {
         message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
       });
       const io = req.app.get('io');
+      if (io) {
+        io.emit('notification', {
+          userId: citizenUser._id.toString(),
+          message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
+        });
       }
     }
 
