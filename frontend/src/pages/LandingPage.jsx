@@ -157,12 +157,12 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white selection:bg-teal-500 selection:text-slate-950 font-sans overflow-x-hidden pt-6">
+    <div className="min-h-screen bg-slate-950 text-white selection:bg-teal-500 selection:text-slate-950 font-sans overflow-x-hidden pt-0">
       {/* 1. 3D SWIPEABLE TOUCH ORBIT CAROUSEL WITH CURVED ROPE CABLE */}
-      <section className="py-16 md:py-24 border-t border-slate-900 relative overflow-hidden bg-slate-950/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+      <section className="py-4 md:py-6 relative overflow-hidden bg-slate-950/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
           {/* Role Pills Navigation */}
-          <div className="flex justify-center gap-2 pt-2">
+          <div className="flex justify-center gap-2 pt-0">
             {roleCards.map((rc, idx) => (
               <button
                 key={rc.id}
@@ -179,7 +179,7 @@ export default function LandingPage() {
           </div>
 
           {/* Touch Drag Orbit Container with Glowing Rope Background */}
-          <div className="relative py-8 flex items-center justify-center min-h-[460px] perspective-1000 select-none">
+          <div className="relative py-2 flex items-center justify-center min-h-[410px] perspective-1000 select-none">
             {/* Curved Glowing Rope SVG background passing through cards */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60 hidden sm:block"
@@ -299,8 +299,17 @@ export default function LandingPage() {
       </section>
 
       {/* 2. VERTICAL TOUCH-SWIPE FLOW GRAPH WITH CONNECTED ROPE CABLE */}
-      <section className="py-16 md:py-24 border-t border-slate-900 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="relative min-h-[580px] flex items-center justify-center select-none py-6">
+      <section className="py-12 md:py-16 border-t border-slate-900 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center max-w-2xl mx-auto mb-4 space-y-2 relative z-10">
+          <span className="text-xs uppercase tracking-widest font-black text-teal-400 px-3.5 py-1 rounded-full bg-teal-950/80 border border-teal-800/80 inline-flex items-center gap-1.5">
+            <GitCommit className="w-3.5 h-3.5 text-teal-400" /> Architecture Pipeline
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            JanSetu Resolution Workflow
+          </h2>
+        </div>
+
+        <div className="relative min-h-[580px] flex items-center justify-center select-none py-4">
           {/* Vertical Curved Rope SVG Line */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
