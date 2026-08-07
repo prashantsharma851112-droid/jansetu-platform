@@ -11,7 +11,12 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     let newSocket = null;
     try {
-      newSocket = io(window.location.origin, {
+      const socketServerUrl =
+        import.meta.env.VITE_SOCKET_URL ||
+        import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') ||
+        window.location.origin;
+
+      newSocket = io(socketServerUrl, {
         transports: ['websocket', 'polling'],
         timeout: 5000,
       });
