@@ -71,15 +71,45 @@ exports.replyInquiry = async (req, res) => {
         message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
       });
       const io = req.app.get('io');
-      if (io) {
-        io.emit('notification', {
-          userId: citizenUser._id.toString(),
-          message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
-        });
       }
     }
 
     res.status(200).json({ success: true, message: 'Reply saved & sent successfully', inquiry });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.testEmailConfig = async (req, res) => {
+  try {
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
+
+    if (!emailUser || !emailPass) {
+      return res.status(400).json({
+        success: false,
+        message: 'EMAIL_USER or EMAIL_PASS environment variable is missing on Render. Please add them in Render Environment Settings.',
+      });
+    }
+
+    const testResult = await sendInquiryReplyEmail({
+      toEmail: emailUser,
+      recipientName: 'Admin Test',
+      citizenMessage: 'Testing JanSetu SMTP Email Dispatcher',
+      adminReply: 'JanSetu email system is active and working 🚀',
+    });
+
+    if (testResult) {
+      return res.status(200).json({
+        success: true,
+        message: `Test Email sent successfully to ${emailUser}! Please check your Gmail Inbox or Spam folder.`,
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send test email. Check Gmail App Password permissions or Render logs.',
+      });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

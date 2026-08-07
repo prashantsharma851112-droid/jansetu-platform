@@ -15,6 +15,7 @@ const {
   updateInquiryStatus,
   deleteInquiry,
   replyInquiry,
+  testEmailConfig,
 } = require('../controllers/adminController');
 const { authenticate, authorize } = require('../middleware/auth');
 
@@ -33,6 +34,7 @@ router.put('/workers/:id', updateWorker);
 router.post('/assign', assignWorkerManually);
 router.put('/escalate/:id', escalateComplaint);
 router.get('/export/csv', exportComplaintsCSV);
+router.post('/test-email', testEmailConfig);
 
 // Inquiries Admin Routes
 router.get('/inquiries', getInquiries);

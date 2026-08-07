@@ -63,6 +63,15 @@ export default function InquiryInbox() {
     }
   };
 
+  const handleTestEmail = async () => {
+    try {
+      const res = await API.post('/admin/test-email');
+      alert(res.data.message);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to send test email');
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this inquiry permanently?')) return;
     try {
@@ -84,12 +93,20 @@ export default function InquiryInbox() {
           <p className="text-xs text-slate-400">Messages & suggestions submitted via JanSetu Landing Page contact form</p>
         </div>
 
-        <button
-          onClick={fetchInquiries}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5 transition self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Refresh Inbox
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleTestEmail}
+            className="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 text-xs font-bold px-3.5 py-2 rounded-xl border border-indigo-800 flex items-center gap-1.5 transition"
+          >
+            <Mail className="w-3.5 h-3.5" /> Test SMTP Email
+          </button>
+          <button
+            onClick={fetchInquiries}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5 transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Refresh Inbox
+          </button>
+        </div>
       </div>
 
       {loading ? (

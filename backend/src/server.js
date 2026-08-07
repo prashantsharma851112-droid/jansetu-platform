@@ -54,12 +54,15 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'JanSetu API is running smoothly 🚀' });
 });
 
-// Static Asset Serving & SPA Wildcard Handler
+// Static Asset Serving & Unified SPA Wildcard Handler
 const fs = require('fs');
 const distIndexPath = path.resolve(__dirname, '../../frontend/dist/index.html');
 if (fs.existsSync(distIndexPath)) {
   app.use(express.static(path.join(__dirname, '../../frontend/dist')));
   app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ success: false, message: 'API Endpoint Not Found' });
+    }
     res.sendFile(distIndexPath);
   });
 } else {
