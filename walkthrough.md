@@ -62,10 +62,8 @@ Open **http://localhost:5173** in your browser.
 
 ---
 
-## 🔑 Quick Demo Credentials
+## 🔒 Production Security Model
 
-Use the **One-Click Demo Role** buttons on the Login page to instantly fill credentials:
-
-- 👑 **Admin**: `admin@jansetu.gov.in` / `Admin@123`
-- 🛠️ **Worker**: `worker1@jansetu.gov.in` / `Worker@123`
-- 👤 **Citizen**: `citizen1@gmail.com` / `Citizen@123`
+- **Public Signup**: Strictly restricted to Citizens.
+- **Worker Provisioning**: Only Master Admin can create & edit worker accounts.
+- **No Public Credentials**: Demo buttons and public password displays are disabled for real platform usage.

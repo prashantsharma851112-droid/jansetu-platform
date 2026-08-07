@@ -57,15 +57,11 @@ npm run dev
 
 ---
 
-## 🔑 Pre-Seeded Demo Credentials
+## 🔒 Strict Production Access & Security Model
 
-| Role | Email | Password |
-|---|---|---|
-| 👑 **Admin** | `admin@jansetu.gov.in` | `Admin@123` |
-| 🛠️ **Field Worker** | `worker1@jansetu.gov.in` | `Worker@123` |
-| 👤 **Citizen** | `citizen1@gmail.com` | `Citizen@123` |
-
-*(Note: Clickable demo buttons are available on the Login page for 1-click credential filling!)*
+- **Citizen Accounts**: Public registration is strictly restricted to Citizen accounts (`/register`).
+- **Worker Accounts**: Field worker accounts CANNOT be created publicly; they must be provisioned and assigned by the Master Admin inside the Admin Command Center (`Field Staff Accounts` tab).
+- **Master Admin Account**: Initialized securely via `npm run seed` using `ADMIN_EMAIL` and `ADMIN_PASSWORD` defined in `.env`.
 
 ---
 
