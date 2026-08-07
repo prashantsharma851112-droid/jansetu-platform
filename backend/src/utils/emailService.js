@@ -1,27 +1,37 @@
 const nodemailer = require('nodemailer');
 
-// Optional Nodemailer Transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  connectionTimeout: 4000,
-  socketTimeout: 4000,
-  auth: {
-    user: process.env.EMAIL_USER || '',
-    pass: process.env.EMAIL_PASS || '',
-  },
-});
+const createTransporter = () => {
+  const user = (process.env.EMAIL_USER || '').trim();
+  const pass = (process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+
+  if (!user || !pass) return null;
+
+  if (user.endsWith('@gmail.com')) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass },
+    });
+  }
+
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT) || 587,
+    secure: false,
+    auth: { user, pass },
+  });
+};
 
 exports.sendInquiryReplyEmail = async ({ toEmail, recipientName, citizenMessage, adminReply }) => {
+  const senderEmail = (process.env.EMAIL_USER || 'noreply.jansetu@gmail.com').trim();
+
   const mailOptions = {
-    from: `"JanSetu Municipal Care" <${process.env.EMAIL_USER || 'noreply.jansetu@gmail.com'}>`,
+    from: `"JanSetu Municipal Desk" <${senderEmail}>`,
     to: toEmail,
     subject: `Official Response from JanSetu Municipal Desk — Inquiry Resolved`,
     html: `
-      <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 24px; borderRadius: 16px;">
-        <h2 style="color: #14b8a6; margin-bottom: 8px;">JanSetu Civic Tech Support</h2>
-        <p style="font-size: 14px; color: #94a3b8;">Dear <strong>${recipientName}</strong>,</p>
+      <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 24px; border-radius: 16px; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #14b8a6; margin-bottom: 8px;">JanSetu Civic Tech Help Desk</h2>
+        <p style="font-size: 14px; color: #94a3b8;">Dear <strong>${recipientName || 'Citizen'}</strong>,</p>
         
         <p style="font-size: 14px; color: #e2e8f0; line-height: 1.6;">
           Thank you for reaching out to the Municipal Help Desk regarding your inquiry:
@@ -44,15 +54,16 @@ exports.sendInquiryReplyEmail = async ({ toEmail, recipientName, citizenMessage,
   };
 
   try {
-    if (process.env.EMAIL_PASS) {
-      await transporter.sendMail(mailOptions);
-      console.log(`✉️ Email reply sent successfully to ${toEmail}`);
+    const transporter = createTransporter();
+    if (transporter) {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`✉️ Email reply sent successfully to ${toEmail}: ${info.messageId}`);
     } else {
-      console.log(`✉️ [Simulated Email Output] Sent to: ${toEmail}\nSubject: ${mailOptions.subject}\nReply: ${adminReply}`);
+      console.log(`✉️ [Simulated Email Output] EMAIL_PASS or EMAIL_USER missing in env. Sent to: ${toEmail}\nSubject: ${mailOptions.subject}\nReply: ${adminReply}`);
     }
     return true;
   } catch (err) {
-    console.error('Email Dispatch Error:', err.message);
+    console.error('❌ Email Dispatch Error:', err.message);
     return false;
   }
 };
