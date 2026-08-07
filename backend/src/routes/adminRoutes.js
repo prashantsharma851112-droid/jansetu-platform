@@ -14,6 +14,7 @@ const {
   getInquiries,
   updateInquiryStatus,
   deleteInquiry,
+  replyInquiry,
 } = require('../controllers/adminController');
 const { authenticate, authorize } = require('../middleware/auth');
 
@@ -36,6 +37,7 @@ router.get('/export/csv', exportComplaintsCSV);
 // Inquiries Admin Routes
 router.get('/inquiries', getInquiries);
 router.patch('/inquiries/:id', updateInquiryStatus);
+router.post('/inquiries/:id/reply', replyInquiry);
 router.delete('/inquiries/:id', deleteInquiry);
 
 module.exports = router;

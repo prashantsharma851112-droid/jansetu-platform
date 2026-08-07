@@ -37,6 +37,28 @@ exports.updateInquiryStatus = async (req, res) => {
   }
 };
 
+exports.replyInquiry = async (req, res) => {
+  try {
+    const { replyMessage } = req.body;
+    if (!replyMessage || !replyMessage.trim()) {
+      return res.status(400).json({ success: false, message: 'Reply message cannot be empty' });
+    }
+    const inquiry = await Inquiry.findByIdAndUpdate(
+      req.params.id,
+      {
+        adminReply: replyMessage,
+        repliedAt: new Date(),
+        status: 'RESOLVED',
+      },
+      { new: true }
+    );
+    if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
+    res.status(200).json({ success: true, message: 'Reply saved & sent successfully', inquiry });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.deleteInquiry = async (req, res) => {
   try {
     const inquiry = await Inquiry.findByIdAndDelete(req.params.id);
