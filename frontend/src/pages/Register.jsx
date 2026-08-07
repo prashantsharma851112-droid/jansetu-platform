@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
 import PinPickerMap from '../components/map/PinPickerMap';
 import axios from 'axios';
 
@@ -14,18 +14,17 @@ export default function Register() {
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
 
-  // OTP State for Registration
+  // OTP Verification State
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [demoOtp, setDemoOtp] = useState('');
-  const [phoneVerified, setPhoneVerified] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [detectingLoc, setDetectingLoc] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
 
-  const { user, register, sendOtp, verifyOtp } = useAuth();
+  const { user, sendOtp, registerWithOtp } = useAuth();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -37,10 +36,27 @@ export default function Register() {
   }, [user, navigate]);
 
   const handleSendRegOtp = async () => {
-    if (!phone || phone.trim().length < 10) {
-      alert('Please enter a valid 10-digit mobile phone number first.');
+    if (!name || !name.trim()) {
+      alert('Please enter your Full Name before requesting OTP.');
       return;
     }
+    if (!email || !email.trim()) {
+      alert('Please enter your Email Address before requesting OTP.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      alert('Please enter a Password of at least 6 characters before requesting OTP.');
+      return;
+    }
+    if (!phone || phone.trim().length < 10) {
+      alert('Please enter a valid 10-digit Phone Number before requesting OTP.');
+      return;
+    }
+    if (!area || !area.trim()) {
+      alert('Please enter your Residential Area / Ward before requesting OTP.');
+      return;
+    }
+
     try {
       setVerifyingOtp(true);
       const res = await sendOtp(phone);
@@ -55,20 +71,46 @@ export default function Register() {
     }
   };
 
-  const handleVerifyRegOtp = async () => {
-    if (!phone || !otpCode) return;
+  const handleCompleteRegistration = async (e) => {
+    e.preventDefault();
+
+    if (!name || !name.trim()) return alert('Full Name is required');
+    if (!email || !email.trim()) return alert('Email Address is required');
+    if (!password || password.length < 6) return alert('Password must be at least 6 characters');
+    if (!phone || phone.trim().length < 10) return alert('Valid 10-digit Phone Number is required');
+    if (!area || !area.trim()) return alert('Residential Area / Ward is required');
+
+    if (!otpSent) {
+      // Trigger OTP sending if not sent yet
+      await handleSendRegOtp();
+      return;
+    }
+
+    if (!otpCode || otpCode.trim().length < 6) {
+      alert('Please enter the 6-digit OTP code sent to your mobile phone.');
+      return;
+    }
+
     try {
-      setVerifyingOtp(true);
-      const res = await verifyOtp({ phone, otp: otpCode, name, area });
+      setSubmitting(true);
+      const res = await registerWithOtp({
+        name,
+        email,
+        password,
+        phone,
+        address,
+        area,
+        otp: otpCode,
+      });
+
       if (res?.user) {
-        setPhoneVerified(true);
-        setOtpSent(false);
         navigate('/citizen');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Invalid OTP code');
+      const msg = err.response?.data?.message || err.message || 'Registration failed';
+      alert(`Registration Error: ${msg}`);
     } finally {
-      setVerifyingOtp(false);
+      setSubmitting(false);
     }
   };
 
@@ -112,24 +154,6 @@ export default function Register() {
     );
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!name || !email || !password) return;
-
-    try {
-      setSubmitting(true);
-      const res = await register({ name, email, password, phone, address, area: area || 'Central Zone' });
-      if (res?.user) {
-        navigate('/citizen');
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Registration failed';
-      alert(`Registration Error: ${msg}`);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
@@ -138,12 +162,12 @@ export default function Register() {
             JS
           </div>
           <h2 className="text-2xl font-black text-white">Create Citizen Account</h2>
-          <p className="text-xs text-slate-400">Join JanSetu to report and track municipal civic issues</p>
+          <p className="text-xs text-slate-400">All fields & OTP Verification are required to register</p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-3">
+        <form onSubmit={handleCompleteRegistration} className="space-y-3">
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Full Name</label>
+            <label className="text-xs font-bold text-slate-300 block mb-1">Full Name *</label>
             <div className="relative">
               <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
@@ -158,7 +182,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Email Address</label>
+            <label className="text-xs font-bold text-slate-300 block mb-1">Email Address *</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
@@ -173,13 +197,14 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Password</label>
+            <label className="text-xs font-bold text-slate-300 block mb-1">Password (min 6 chars) *</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
-                placeholder="Minimum 6 characters"
+                minLength={6}
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-10 py-2 bg-slate-950 border border-slate-800 text-xs text-white rounded-xl focus:ring-1 focus:ring-teal-500 outline-none"
@@ -195,72 +220,24 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Phone Number Field with OTP Verification */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-300">Phone Number</label>
-              {phoneVerified ? (
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" /> Verified OTP
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSendRegOtp}
-                  disabled={verifyingOtp || !phone}
-                  className="text-[10px] font-bold text-teal-400 hover:text-teal-300 bg-teal-950/80 hover:bg-teal-900 border border-teal-800/80 px-2 py-0.5 rounded flex items-center gap-1 transition"
-                >
-                  {verifyingOtp ? <Loader2 className="w-3 h-3 animate-spin" /> : <KeyRound className="w-3 h-3 text-teal-400" />}
-                  Verify OTP
-                </button>
-              )}
-            </div>
-
+            <label className="text-xs font-bold text-slate-300 block mb-1">Phone Number *</label>
             <div className="relative">
               <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="text"
+                required
                 placeholder="+91 98765 43210"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 text-xs text-white rounded-xl focus:ring-1 focus:ring-teal-500 outline-none"
               />
             </div>
-
-            {/* In-Line OTP Box if Sent */}
-            {otpSent && !phoneVerified && (
-              <div className="mt-2 p-2.5 bg-slate-950 border border-teal-800/80 rounded-xl space-y-2">
-                {demoOtp && (
-                  <div className="text-[10px] text-teal-400 font-mono font-bold flex items-center justify-between">
-                    <span>SMS OTP: {demoOtp}</span>
-                    <span className="text-[9px] text-slate-500">Demo Code</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="Enter 6-digit OTP"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-700 text-xs text-white rounded-lg text-center font-mono outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerifyRegOtp}
-                    disabled={verifyingOtp || otpCode.length < 6}
-                    className="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg transition shrink-0"
-                  >
-                    Verify
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-300">Residential Area / Ward</label>
+              <label className="text-xs font-bold text-slate-300">Residential Area / Ward *</label>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -286,6 +263,7 @@ export default function Register() {
               <MapPin className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="text"
+                required
                 placeholder="e.g. Connaught Place Ward 12"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
@@ -294,13 +272,51 @@ export default function Register() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 mt-2"
-          >
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Account'}
-          </button>
+          {/* OTP STEP */}
+          {!otpSent ? (
+            <button
+              type="button"
+              onClick={handleSendRegOtp}
+              disabled={verifyingOtp || !name || !email || !password || !phone || !area}
+              className="w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 mt-3 disabled:opacity-50"
+            >
+              {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <><KeyRound className="w-4 h-4" /> Send Verification OTP & Continue</>}
+            </button>
+          ) : (
+            <div className="space-y-3 pt-2 border-t border-slate-800">
+              {demoOtp && (
+                <div className="p-3 bg-teal-950/80 border border-teal-800 rounded-xl text-center space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-teal-400 block">📱 Live SMS OTP Code</span>
+                  <span className="text-xl font-mono font-black text-teal-200 tracking-wider">{demoOtp}</span>
+                  <p className="text-[10px] text-slate-400">Enter this code below to confirm account creation</p>
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-bold text-teal-400 block mb-1">Enter 6-Digit Verification OTP *</label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-teal-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP..."
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-teal-500/50 text-sm font-mono tracking-widest text-white rounded-xl focus:ring-1 focus:ring-teal-400 outline-none text-center"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || otpCode.length < 6}
+                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ShieldCheck className="w-4 h-4" /> Verify OTP & Create Account</>}
+              </button>
+            </div>
+          )}
         </form>
 
         <div className="text-center text-xs text-slate-500">

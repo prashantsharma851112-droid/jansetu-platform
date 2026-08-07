@@ -167,7 +167,7 @@ export default function CategoryManager({ onCategoriesChanged }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <form
             onSubmit={handleUpdate}
-            className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 relative"
+            className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 relative max-h-[90vh] overflow-y-auto"
           >
             <button
               type="button"

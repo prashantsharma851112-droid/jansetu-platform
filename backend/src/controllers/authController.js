@@ -52,7 +52,7 @@ exports.sendOtp = async (req, res) => {
 
 exports.verifyOtp = async (req, res) => {
   try {
-    const { phone, otp, name, area } = req.body;
+    const { phone, otp } = req.body;
     if (!phone || !otp) {
       return res.status(400).json({ success: false, message: 'Phone number and OTP code are required' });
     }
@@ -64,38 +64,105 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
     }
 
+    // Find existing citizen user by phone
+    const user = await User.findOne({ phone: formattedPhone });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No registered citizen account found with this phone number. Please complete registration first with your Full Name, Email, and Password.',
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'Your account has been deactivated by Admin' });
+    }
+
     // Delete used OTP
     await Otp.deleteMany({ phone: formattedPhone });
-
-    // Find existing citizen user by phone or generated citizen email
-    const cleanDigits = formattedPhone.replace(/\D/g, '');
-    const generatedEmail = `${cleanDigits}@jansetu.citizen`;
-
-    let user = await User.findOne({
-      $or: [{ phone: formattedPhone }, { email: generatedEmail }],
-    });
-
-    // If new citizen user, create account
-    if (!user) {
-      user = await User.create({
-        name: name || `Citizen ${cleanDigits.slice(-4)}`,
-        email: generatedEmail,
-        phone: formattedPhone,
-        passwordHash: 'CitizenOTP@123',
-        area: area || 'Central Zone',
-        role: 'CITIZEN',
-      });
-    } else {
-      if (!user.isActive) {
-        return res.status(403).json({ success: false, message: 'Your account has been deactivated by Admin' });
-      }
-    }
 
     const token = generateToken(user._id);
 
     res.status(200).json({
       success: true,
-      message: 'OTP Verified successfully',
+      message: 'OTP verified successfully. Logged in.',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        phone: user.phone,
+        address: user.address,
+        area: user.area,
+        department: user.department,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.registerWithOtp = async (req, res) => {
+  try {
+    const { name, email, password, phone, address, area, otp } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Full Name is required' });
+    }
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: 'Email Address is required' });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+    }
+    if (!phone || phone.trim().length < 10) {
+      return res.status(400).json({ success: false, message: 'Valid 10-digit Phone Number is required' });
+    }
+    if (!area || !area.trim()) {
+      return res.status(400).json({ success: false, message: 'Residential Area / Ward is required' });
+    }
+    if (!otp || !otp.trim()) {
+      return res.status(400).json({ success: false, message: 'OTP verification code is required' });
+    }
+
+    const formattedPhone = formatPhoneNumber(phone);
+    const validOtp = await Otp.findOne({ phone: formattedPhone, code: otp.trim() });
+
+    if (!validOtp) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
+    }
+
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return res.status(400).json({ success: false, message: 'An account with this email address already exists' });
+    }
+
+    const existingPhone = await User.findOne({ phone: formattedPhone });
+    if (existingPhone) {
+      return res.status(400).json({ success: false, message: 'An account with this phone number already exists. Please login instead.' });
+    }
+
+    // Clear used OTP
+    await Otp.deleteMany({ phone: formattedPhone });
+
+    const user = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      passwordHash: password,
+      phone: formattedPhone,
+      address: address || '',
+      area: area.trim(),
+      department: 'General Civic Care',
+      role: 'CITIZEN',
+    });
+
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Citizen account created and verified successfully',
       token,
       user: {
         id: user._id,

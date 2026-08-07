@@ -145,9 +145,9 @@ export default function ComplaintWizard({ onFinished }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
+    <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative max-h-[90vh] flex flex-col">
       {/* Step Progress Bar Header */}
-      <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
+      <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between shrink-0">
         <div className="flex-1 mr-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs uppercase tracking-wider font-bold text-teal-400">
@@ -181,7 +181,7 @@ export default function ComplaintWizard({ onFinished }) {
       </div>
 
       {/* Step Container */}
-      <div className="p-6 md:p-8 min-h-[420px] flex flex-col justify-between">
+      <div className="p-4 sm:p-6 md:p-8 min-h-[380px] flex-1 overflow-y-auto flex flex-col justify-between">
         <AnimatePresence mode="wait">
           {/* STEP 1: CATEGORY SELECTION */}
           {step === 1 && (

@@ -78,6 +78,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const registerWithOtp = async (userData) => {
+    const res = await API.post('/auth/register-otp', userData);
+    if (res.data.success) {
+      localStorage.setItem('jansetu_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return res.data;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -90,6 +100,7 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         sendOtp,
         verifyOtp,
+        registerWithOtp,
         role: user ? user.role : null,
       }}
     >

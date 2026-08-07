@@ -41,25 +41,25 @@ export default function Navbar() {
           </Link>
 
           {/* Dynamic Navigation Links based on role */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <nav className="flex items-center gap-2 sm:gap-4 text-xs font-medium">
             {user?.role === 'CITIZEN' && (
               <>
-                <Link to="/citizen" className="hover:text-teal-400 transition">My Complaints</Link>
-                <Link to="/citizen/raise" className="bg-teal-600 hover:bg-teal-500 text-white px-3.5 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 shadow-md shadow-teal-600/30 transition">
-                  <PlusCircle className="w-4 h-4" /> Raise Issue
+                <Link to="/citizen" className="hidden sm:block hover:text-teal-400 transition">My Complaints</Link>
+                <Link to="/citizen/raise" className="bg-teal-600 hover:bg-teal-500 text-white px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 shadow-md shadow-teal-600/30 transition text-xs">
+                  <PlusCircle className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Raise</span> Issue
                 </Link>
               </>
             )}
 
             {user?.role === 'WORKER' && (
-              <Link to="/worker" className="text-amber-400 font-semibold hover:underline flex items-center gap-1.5">
-                <Wrench className="w-4 h-4" /> Operations Portal
+              <Link to="/worker" className="text-amber-400 font-semibold hover:underline flex items-center gap-1 text-xs">
+                <Wrench className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Operations</span>
               </Link>
             )}
 
             {user?.role === 'ADMIN' && (
-              <Link to="/admin" className="text-indigo-400 font-semibold hover:underline flex items-center gap-1.5">
-                <Shield className="w-4 h-4" /> Command Center
+              <Link to="/admin" className="text-indigo-400 font-semibold hover:underline flex items-center gap-1 text-xs">
+                <Shield className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Command</span>
               </Link>
             )}
           </nav>
