@@ -55,6 +55,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (data) => {
+    const res = await API.put('/auth/profile', data);
+    if (res.data.success) {
+      setUser(res.data.user);
+    }
+    return res.data;
+  };
+
   const sendOtp = async (phone) => {
     const res = await API.post('/auth/send-otp', { phone });
     return res.data;
