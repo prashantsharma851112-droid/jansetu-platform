@@ -55,13 +55,13 @@ exports.replyInquiry = async (req, res) => {
     );
     if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
 
-    // Send email response to citizen email
-    await sendInquiryReplyEmail({
+    // Send email response asynchronously (non-blocking)
+    sendInquiryReplyEmail({
       toEmail: inquiry.email,
       recipientName: inquiry.name,
       citizenMessage: inquiry.message,
       adminReply: replyMessage,
-    });
+    }).catch((err) => console.error('Non-blocking Email error:', err));
 
     // Send in-app notification if citizen is registered user
     const citizenUser = await User.findOne({ email: inquiry.email.toLowerCase() });

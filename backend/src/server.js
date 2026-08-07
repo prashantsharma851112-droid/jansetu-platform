@@ -54,24 +54,22 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'JanSetu API is running smoothly 🚀' });
 });
 
-// Production Static Asset Serving
-if (process.env.NODE_ENV === 'production') {
-  const fs = require('fs');
-  const distIndexPath = path.resolve(__dirname, '../../frontend/dist/index.html');
-  if (fs.existsSync(distIndexPath)) {
-    app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(distIndexPath);
-    });
-  } else {
-    app.get('/', (req, res) => {
-      res.status(200).json({
-        success: true,
-        message: 'JanSetu Civic Resolution API Service is running Live 🚀',
-        healthCheck: '/api/health',
-      });
-    });
-  }
+// Static Asset Serving & SPA Wildcard Handler
+const fs = require('fs');
+const distIndexPath = path.resolve(__dirname, '../../frontend/dist/index.html');
+if (fs.existsSync(distIndexPath)) {
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(distIndexPath);
+  });
+} else {
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ success: false, message: 'API Endpoint Not Found' });
+    }
+    const clientUrl = process.env.CLIENT_URL || 'https://jansetu-platform.onrender.com';
+    res.redirect(`${clientUrl}${req.path}`);
+  });
 }
 
 // Error handling middleware
