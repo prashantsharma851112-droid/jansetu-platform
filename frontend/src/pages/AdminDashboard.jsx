@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, MapPin, Table, Tag, Users, Shield, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, MapPin, Table, Tag, Users, Shield, RefreshCw, Mail } from 'lucide-react';
 import AnalyticsOverview from '../components/admin/AnalyticsOverview';
 import HeatmapView from '../components/map/HeatmapView';
 import ComplaintTable from '../components/admin/ComplaintTable';
 import CategoryManager from '../components/admin/CategoryManager';
 import WorkerManager from '../components/admin/WorkerManager';
+import InquiryInbox from '../components/admin/InquiryInbox';
 import DetailModal from '../components/common/DetailModal';
 import API from '../services/api';
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState('ANALYTICS'); // 'ANALYTICS' | 'MAP' | 'TABLE' | 'CATEGORIES' | 'WORKERS'
+  const [tab, setTab] = useState('ANALYTICS'); // 'ANALYTICS' | 'MAP' | 'TABLE' | 'CATEGORIES' | 'WORKERS' | 'INQUIRIES'
   const [analytics, setAnalytics] = useState(null);
   const [heatmapPoints, setHeatmapPoints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
             { id: 'TABLE', label: 'Complaints Register', icon: Table },
             { id: 'CATEGORIES', label: 'Category Editor', icon: Tag },
             { id: 'WORKERS', label: 'Field Staff Accounts', icon: Users },
+            { id: 'INQUIRIES', label: 'Public Inquiries', icon: Mail },
           ].map((t) => {
             const IconComp = t.icon;
             return (
@@ -87,6 +89,7 @@ export default function AdminDashboard() {
         {tab === 'TABLE' && <ComplaintTable onSelectComplaint={(c) => setSelectedDetailId(c._id)} />}
         {tab === 'CATEGORIES' && <CategoryManager />}
         {tab === 'WORKERS' && <WorkerManager onSelectComplaint={(cId) => setSelectedDetailId(cId)} />}
+        {tab === 'INQUIRIES' && <InquiryInbox />}
       </main>
 
       {/* Detail Modal */}

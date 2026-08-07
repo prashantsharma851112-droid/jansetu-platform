@@ -154,14 +154,19 @@ export default function LandingPage() {
     }
   };
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
     if (!contactForm.name || !contactForm.email || !contactForm.message) return;
-    setContactSubmitted(true);
-    setTimeout(() => {
-      setContactForm({ name: '', email: '', message: '' });
-      setContactSubmitted(false);
-    }, 4000);
+    try {
+      await API.post('/admin/inquiry/public', contactForm);
+      setContactSubmitted(true);
+      setTimeout(() => {
+        setContactForm({ name: '', email: '', message: '' });
+        setContactSubmitted(false);
+      }, 4000);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to send inquiry. Please try again.');
+    }
   };
 
   return (
