@@ -56,10 +56,22 @@ app.get('/api/health', (req, res) => {
 
 // Production Static Asset Serving
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
-  });
+  const fs = require('fs');
+  const distIndexPath = path.resolve(__dirname, '../../frontend/dist/index.html');
+  if (fs.existsSync(distIndexPath)) {
+    app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+    app.get('*', (req, res) => {
+      res.sendFile(distIndexPath);
+    });
+  } else {
+    app.get('/', (req, res) => {
+      res.status(200).json({
+        success: true,
+        message: 'JanSetu Civic Resolution API Service is running Live 🚀',
+        healthCheck: '/api/health',
+      });
+    });
+  }
 }
 
 // Error handling middleware
