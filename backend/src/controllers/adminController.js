@@ -3,6 +3,7 @@ const Category = require('../models/Category');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Inquiry = require('../models/Inquiry');
+const { sendInquiryReplyEmail } = require('../utils/emailService');
 
 exports.submitInquiry = async (req, res) => {
   try {
@@ -53,7 +54,16 @@ exports.replyInquiry = async (req, res) => {
       { new: true }
     );
     if (!inquiry) return res.status(404).json({ success: false, message: 'Inquiry not found' });
-    res.status(200).json({ success: true, message: 'Reply saved & sent successfully', inquiry });
+
+    // Send email response to citizen email
+    await sendInquiryReplyEmail({
+      toEmail: inquiry.email,
+      recipientName: inquiry.name,
+      citizenMessage: inquiry.message,
+      adminReply: replyMessage,
+    });
+
+    res.status(200).json({ success: true, message: 'Reply saved & email sent successfully', inquiry });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
