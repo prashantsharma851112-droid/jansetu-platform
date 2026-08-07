@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCheck, Clock } from 'lucide-react';
 import API from '../../services/api';
 
@@ -6,6 +6,7 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const fetchNotifications = async () => {
     try {
@@ -25,6 +26,17 @@ export default function NotificationBell() {
     return () => clearInterval(interval);
   }, []);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const markAllRead = async () => {
     try {
       await API.put('/notifications/mark-read/all');
@@ -35,11 +47,19 @@ export default function NotificationBell() {
     }
   };
 
+  const handleToggleMenu = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState && unreadCount > 0) {
+      markAllRead();
+    }
+  };
+
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none"
+        onClick={handleToggleMenu}
+        className="relative p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition focus:outline-none"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -50,7 +70,7 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 mt-2 w-80 bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
             <h4 className="text-xs font-bold text-slate-800">Notifications</h4>
             {unreadCount > 0 && (
@@ -70,7 +90,7 @@ export default function NotificationBell() {
               notifications.map((n) => (
                 <div
                   key={n._id}
-                  className={`p-3 text-xs transition ${n.isRead ? 'bg-white text-slate-600' : 'bg-teal-50/50 text-slate-900 font-medium'}`}
+                  className={`p-3 text-xs transition ${n.isRead ? 'bg-white text-slate-600' : 'bg-teal-50/60 text-slate-900 font-semibold'}`}
                 >
                   <p className="line-clamp-2">{n.message}</p>
                   <span className="text-[10px] text-slate-400 mt-1 block flex items-center gap-1">
