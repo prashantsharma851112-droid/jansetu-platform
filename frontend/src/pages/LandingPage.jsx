@@ -104,6 +104,14 @@ export default function LandingPage() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -160,14 +168,14 @@ export default function LandingPage() {
     <div className="min-h-screen bg-slate-950 text-white selection:bg-teal-500 selection:text-slate-950 font-sans overflow-x-hidden pt-0">
       {/* 1. 3D SWIPEABLE TOUCH ORBIT CAROUSEL WITH CURVED ROPE CABLE */}
       <section className="py-4 md:py-6 relative overflow-hidden bg-slate-950/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 text-center space-y-3">
           {/* Role Pills Navigation */}
-          <div className="flex justify-center gap-2 pt-0">
+          <div className="flex justify-center gap-1.5 sm:gap-2 pt-0 flex-wrap">
             {roleCards.map((rc, idx) => (
               <button
                 key={rc.id}
                 onClick={() => setActiveRoleIndex(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all ${
                   activeRoleIndex === idx
                     ? 'bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 shadow-lg scale-105'
                     : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -179,7 +187,7 @@ export default function LandingPage() {
           </div>
 
           {/* Touch Drag Orbit Container with Glowing Rope Background */}
-          <div className="relative py-2 flex items-center justify-center min-h-[410px] perspective-1000 select-none">
+          <div className="relative py-2 flex items-center justify-center min-h-[380px] sm:min-h-[410px] perspective-1000 select-none">
             {/* Curved Glowing Rope SVG background passing through cards */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60 hidden sm:block"
@@ -203,11 +211,14 @@ export default function LandingPage() {
               </defs>
             </svg>
 
-            <div className="relative w-full max-w-lg h-[400px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10">
+            <div className="relative w-full max-w-xs sm:max-w-lg h-[370px] sm:h-[400px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10">
               <AnimatePresence mode="popLayout">
                 {roleCards.map((card, idx) => {
                   const position = (idx - activeRoleIndex + roleCards.length) % roleCards.length;
                   const IconComp = card.icon;
+
+                  const offsetVal = isMobile ? 80 : 180;
+                  const sideScale = isMobile ? 0.72 : 0.82;
 
                   let xOffset = 0;
                   let scale = 1;
@@ -217,22 +228,22 @@ export default function LandingPage() {
 
                   if (position === 0) {
                     xOffset = 0;
-                    scale = 1.05;
+                    scale = isMobile ? 0.96 : 1.05;
                     opacity = 1;
                     zIndex = 30;
                     rotateY = 0;
                   } else if (position === 1) {
-                    xOffset = 180;
-                    scale = 0.82;
-                    opacity = 0.45;
+                    xOffset = offsetVal;
+                    scale = sideScale;
+                    opacity = isMobile ? 0.55 : 0.45;
                     zIndex = 10;
-                    rotateY = -25;
+                    rotateY = isMobile ? -15 : -25;
                   } else {
-                    xOffset = -180;
-                    scale = 0.82;
-                    opacity = 0.45;
+                    xOffset = -offsetVal;
+                    scale = sideScale;
+                    opacity = isMobile ? 0.55 : 0.45;
                     zIndex = 10;
-                    rotateY = 25;
+                    rotateY = isMobile ? 15 : 25;
                   }
 
                   return (
@@ -252,9 +263,9 @@ export default function LandingPage() {
                       }}
                       transition={{ duration: 0.4, type: 'spring', stiffness: 120 }}
                       onClick={() => setActiveRoleIndex(idx)}
-                      className={`absolute w-full p-6 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-xl border ${
+                      className={`absolute w-[86%] sm:w-full p-4 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-xl border ${
                         position === 0 ? `${card.borderColor} ring-2 ${card.ringColor} shadow-2xl ${card.glowColor}` : 'border-slate-800'
-                      } text-left space-y-4 touch-pan-x`}
+                      } text-left space-y-3 sm:space-y-4 touch-pan-x`}
                     >
                       <div className="flex items-center justify-between">
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${card.color} text-slate-950 flex items-center justify-center font-bold shadow-lg`}>
@@ -304,12 +315,12 @@ export default function LandingPage() {
           <span className="text-xs uppercase tracking-widest font-black text-teal-400 px-3.5 py-1 rounded-full bg-teal-950/80 border border-teal-800/80 inline-flex items-center gap-1.5">
             <GitCommit className="w-3.5 h-3.5 text-teal-400" /> Architecture Pipeline
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
             JanSetu Resolution Workflow
           </h2>
         </div>
 
-        <div className="relative min-h-[580px] flex items-center justify-center select-none py-4">
+        <div className="relative min-h-[480px] sm:min-h-[580px] flex items-center justify-center select-none py-4">
           {/* Vertical Curved Rope SVG Line */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
@@ -335,7 +346,7 @@ export default function LandingPage() {
           </svg>
 
           {/* Swipeable Vertical Cards Container */}
-          <div className="relative w-full max-w-xl h-[420px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y">
+          <div className="relative w-full max-w-xs sm:max-w-xl h-[370px] sm:h-[420px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y">
             <AnimatePresence mode="popLayout">
               {verticalFlowNodes.map((node, idx) => {
                 const pos = (idx - activeFlowIndex + verticalFlowNodes.length) % verticalFlowNodes.length;
@@ -348,17 +359,17 @@ export default function LandingPage() {
 
                 if (pos === 0) {
                   yOffset = 0;
-                  scale = 1.05;
+                  scale = isMobile ? 0.96 : 1.05;
                   opacity = 1;
                   zIndex = 30;
                 } else if (pos === 1) {
-                  yOffset = 140;
-                  scale = 0.86;
+                  yOffset = isMobile ? 100 : 140;
+                  scale = isMobile ? 0.78 : 0.86;
                   opacity = 0.5;
                   zIndex = 10;
                 } else if (pos === verticalFlowNodes.length - 1) {
-                  yOffset = -140;
-                  scale = 0.86;
+                  yOffset = isMobile ? -100 : -140;
+                  scale = isMobile ? 0.78 : 0.86;
                   opacity = 0.5;
                   zIndex = 10;
                 } else {
@@ -384,9 +395,9 @@ export default function LandingPage() {
                     }}
                     transition={{ duration: 0.4, type: 'spring', stiffness: 120 }}
                     onClick={() => setActiveFlowIndex(idx)}
-                    className={`absolute w-full p-6 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-2xl border ${
+                    className={`absolute w-[90%] sm:w-full p-4 sm:p-8 rounded-3xl bg-slate-900/95 backdrop-blur-2xl border ${
                       pos === 0 ? `${node.color} ring-2 ring-teal-500/30 shadow-2xl ${node.glow}` : 'border-slate-800/80 opacity-60'
-                    } text-left space-y-4`}
+                    } text-left space-y-3 sm:space-y-4`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -444,16 +455,16 @@ export default function LandingPage() {
       <section className="py-20 md:py-28 border-t border-slate-900 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3 relative z-10">
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16 space-y-3 relative z-10">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
             4 Simple Steps to Resolve Any Grievance
           </h2>
         </div>
 
         {/* Connected Step Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative z-10">
           {/* STEP 1 */}
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-teal-500/40 hover:border-teal-400 shadow-2xl hover:shadow-teal-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+          <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-teal-500/40 hover:border-teal-400 shadow-2xl hover:shadow-teal-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-black text-teal-400 px-3 py-1 rounded-xl bg-teal-950 border border-teal-800">
@@ -485,7 +496,7 @@ export default function LandingPage() {
           </div>
 
           {/* STEP 2 */}
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-cyan-500/40 hover:border-cyan-400 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+          <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-cyan-500/40 hover:border-cyan-400 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-black text-cyan-400 px-3 py-1 rounded-xl bg-cyan-950 border border-cyan-800">
@@ -516,7 +527,7 @@ export default function LandingPage() {
           </div>
 
           {/* STEP 3 */}
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+          <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-black text-amber-400 px-3 py-1 rounded-xl bg-amber-950 border border-amber-800">
@@ -549,7 +560,7 @@ export default function LandingPage() {
           </div>
 
           {/* STEP 4 */}
-          <div className="p-6 rounded-3xl bg-slate-900/90 border border-indigo-500/40 hover:border-indigo-400 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
+          <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-indigo-500/40 hover:border-indigo-400 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 space-y-4 group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-black text-indigo-400 px-3 py-1 rounded-xl bg-indigo-950 border border-indigo-800">
