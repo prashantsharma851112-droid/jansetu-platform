@@ -79,7 +79,10 @@ export default function AdminDashboard() {
             return (
               <button
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                onClick={() => {
+                  setTab(t.id);
+                  if (t.id === 'INQUIRIES') setUnreadInquiriesCount(0);
+                }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 relative ${
                   tab === t.id
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'

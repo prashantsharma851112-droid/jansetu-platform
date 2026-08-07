@@ -15,6 +15,11 @@ export default function InquiryInbox() {
       const res = await API.get('/admin/inquiries');
       if (res.data.success) {
         setInquiries(res.data.inquiries);
+        // Automatically mark NEW inquiries as READ when opened
+        const newItems = res.data.inquiries.filter((item) => item.status === 'NEW');
+        newItems.forEach((item) => {
+          API.patch(`/admin/inquiries/${item._id}`, { status: 'READ' }).catch(() => {});
+        });
       }
     } catch (err) {
       console.error(err);

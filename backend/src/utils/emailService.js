@@ -1,31 +1,16 @@
 const nodemailer = require('nodemailer');
 
-const createTransporter = () => {
+exports.sendInquiryReplyEmail = async ({ toEmail, recipientName, citizenMessage, adminReply }) => {
   const user = (process.env.EMAIL_USER || '').trim();
   const pass = (process.env.EMAIL_PASS || '').replace(/\s+/g, '');
 
-  if (!user || !pass) return null;
-
-  if (user.endsWith('@gmail.com')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user, pass },
-    });
+  if (!user || !pass) {
+    console.log(`✉️ [Simulated Email] EMAIL_USER or EMAIL_PASS missing in env. Sent to: ${toEmail}\nReply: ${adminReply}`);
+    return false;
   }
 
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 587,
-    secure: false,
-    auth: { user, pass },
-  });
-};
-
-exports.sendInquiryReplyEmail = async ({ toEmail, recipientName, citizenMessage, adminReply }) => {
-  const senderEmail = (process.env.EMAIL_USER || 'noreply.jansetu@gmail.com').trim();
-
   const mailOptions = {
-    from: `"JanSetu Municipal Desk" <${senderEmail}>`,
+    from: `"JanSetu Municipal Desk" <${user}>`,
     to: toEmail,
     subject: `Official Response from JanSetu Municipal Desk — Inquiry Resolved`,
     html: `
@@ -53,17 +38,34 @@ exports.sendInquiryReplyEmail = async ({ toEmail, recipientName, citizenMessage,
     `,
   };
 
+  // Try Primary Gmail Service
   try {
-    const transporter = createTransporter();
-    if (transporter) {
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`✉️ Email reply sent successfully to ${toEmail}: ${info.messageId}`);
-    } else {
-      console.log(`✉️ [Simulated Email Output] EMAIL_PASS or EMAIL_USER missing in env. Sent to: ${toEmail}\nSubject: ${mailOptions.subject}\nReply: ${adminReply}`);
-    }
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false }
+    });
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✉️ Email reply sent successfully to ${toEmail}: ${info.messageId}`);
     return true;
-  } catch (err) {
-    console.error('❌ Email Dispatch Error:', err.message);
-    return false;
+  } catch (primaryErr) {
+    console.error('❌ Primary Gmail Service Error, trying SMTP SSL Port 465:', primaryErr.message);
+
+    // Try Fallback Transporter: Port 465 SSL
+    try {
+      const sslTransporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: { user, pass },
+        tls: { rejectUnauthorized: false }
+      });
+      const sslInfo = await sslTransporter.sendMail(mailOptions);
+      console.log(`✉️ SSL Email reply sent successfully to ${toEmail}: ${sslInfo.messageId}`);
+      return true;
+    } catch (sslErr) {
+      console.error('❌ SSL Fallback Email Dispatch Error:', sslErr.message);
+      return false;
+    }
   }
 };
