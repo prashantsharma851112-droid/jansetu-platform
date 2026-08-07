@@ -63,7 +63,23 @@ exports.replyInquiry = async (req, res) => {
       adminReply: replyMessage,
     });
 
-    res.status(200).json({ success: true, message: 'Reply saved & email sent successfully', inquiry });
+    // Send in-app notification if citizen is registered user
+    const citizenUser = await User.findOne({ email: inquiry.email.toLowerCase() });
+    if (citizenUser) {
+      await Notification.create({
+        user: citizenUser._id,
+        message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
+      });
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('notification', {
+          userId: citizenUser._id.toString(),
+          message: `Admin responded to your public inquiry: "${replyMessage.substring(0, 60)}..."`,
+        });
+      }
+    }
+
+    res.status(200).json({ success: true, message: 'Reply saved & sent successfully', inquiry });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

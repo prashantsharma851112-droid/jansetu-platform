@@ -16,15 +16,22 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedDetailId, setSelectedDetailId] = useState(null);
 
+  const [unreadInquiriesCount, setUnreadInquiriesCount] = useState(0);
+
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      const [aRes, hRes] = await Promise.all([
+      const [aRes, hRes, iRes] = await Promise.all([
         API.get('/admin/analytics'),
         API.get('/admin/heatmap'),
+        API.get('/admin/inquiries'),
       ]);
       if (aRes.data.success) setAnalytics(aRes.data.analytics);
       if (hRes.data.success) setHeatmapPoints(hRes.data.points);
+      if (iRes.data.success) {
+        const newCount = iRes.data.inquiries.filter((item) => item.status === 'NEW').length;
+        setUnreadInquiriesCount(newCount);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -34,6 +41,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAdminData();
+    const interval = setInterval(fetchAdminData, 15000); // Auto-refresh unread count every 15s
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -64,20 +73,25 @@ export default function AdminDashboard() {
             { id: 'TABLE', label: 'Complaints Register', icon: Table },
             { id: 'CATEGORIES', label: 'Category Editor', icon: Tag },
             { id: 'WORKERS', label: 'Field Staff Accounts', icon: Users },
-            { id: 'INQUIRIES', label: 'Public Inquiries', icon: Mail },
+            { id: 'INQUIRIES', label: 'Public Inquiries', icon: Mail, badge: unreadInquiriesCount },
           ].map((t) => {
             const IconComp = t.icon;
             return (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 relative ${
                   tab === t.id
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
                     : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
                 }`}
               >
                 <IconComp className="w-3.5 h-3.5" /> {t.label}
+                {t.badge > 0 && (
+                  <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-md shadow-rose-500/50 ml-1">
+                    {t.badge} NEW
+                  </span>
+                )}
               </button>
             );
           })}
