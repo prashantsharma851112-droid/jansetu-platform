@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/common/Logo';
 import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, Loader2, Navigation, Map, KeyRound, CheckCircle2, ShieldCheck, AlertCircle, ArrowLeft } from 'lucide-react';
 import PinPickerMap from '../components/map/PinPickerMap';
 import axios from 'axios';
@@ -168,10 +169,8 @@ export default function Register() {
 
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4 relative mt-12 sm:mt-0">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-block">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 font-black text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/20 hover:scale-105 transition">
-              JS
-            </div>
+          <Link to="/" className="inline-block group">
+            <Logo size="lg" className="mx-auto" />
           </Link>
           <h2 className="text-2xl font-black text-white">Create Citizen Account</h2>
           <p className="text-xs text-slate-400">All fields & OTP Verification are required to register</p>

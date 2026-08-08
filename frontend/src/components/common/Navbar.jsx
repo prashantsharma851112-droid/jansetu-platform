@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import UserProfileModal from './UserProfileModal';
+import Logo from './Logo';
 import { Building2, LogOut, Shield, Wrench, User, PlusCircle, MapPin } from 'lucide-react';
 
 export default function Navbar() {
@@ -23,13 +24,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-white">
+      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform">
-              JS
-            </div>
+            <Logo size="md" />
             <div>
               <span className="text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-teal-400 bg-clip-text text-transparent">
                 JanSetu
