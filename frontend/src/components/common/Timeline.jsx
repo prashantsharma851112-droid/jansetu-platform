@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, Wrench, ShieldAlert, Star, UserCheck, Image as ImageIcon } from 'lucide-react';
 
+import { formatImageUrl, handleImageError } from '../../utils/imageUrl';
+
 const stageSteps = [
   { key: 'SUBMITTED', title: 'Submitted', icon: Clock, color: 'text-slate-500 bg-slate-100 border-slate-300' },
   { key: 'ASSIGNED', title: 'Assigned to Worker', icon: UserCheck, color: 'text-blue-600 bg-blue-50 border-blue-300' },
@@ -82,12 +84,17 @@ export default function Timeline({ timeline = [], images = [], currentStatus, fe
                   {stageImages.map((img, i) => (
                     <a
                       key={i}
-                      href={img.url}
+                      href={formatImageUrl(img.url)}
                       target="_blank"
                       rel="noreferrer"
-                      className="group/img relative block w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm hover:ring-2 hover:ring-teal-500"
+                      className="group/img relative block w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm hover:ring-2 hover:ring-teal-500 bg-slate-100"
                     >
-                      <img src={img.url} alt={`Stage ${step.key}`} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform" />
+                      <img
+                        src={formatImageUrl(img.url)}
+                        onError={handleImageError}
+                        alt={`Stage ${step.key}`}
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform"
+                      />
                       <span className="absolute bottom-0 inset-x-0 bg-slate-900/70 text-[9px] text-white text-center py-0.5 uppercase font-bold">
                         {img.stage}
                       </span>

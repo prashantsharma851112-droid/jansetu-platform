@@ -123,7 +123,7 @@ exports.updateTaskStage = async (req, res) => {
     if (req.files && req.files.length > 0) {
       const imageStage = stage === 'RESOLVED' ? 'AFTER' : 'PROGRESS';
       req.files.forEach((file) => {
-        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        const fileUrl = `/uploads/${file.filename}`;
         newImages.push({
           url: fileUrl,
           stage: imageStage,

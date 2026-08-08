@@ -1,12 +1,13 @@
 import React from 'react';
 import { StatusBadge, PriorityBadge } from '../common/Badge';
 import { MapPin, ThumbsUp, Calendar, ArrowRight, ShieldAlert } from 'lucide-react';
+import { formatImageUrl, handleImageError } from '../../utils/imageUrl';
 
 export default function ComplaintCard({ complaint, onClick, onUpvote, showUpvote = true }) {
   const thumbnail =
     complaint.images && complaint.images.length > 0
-      ? complaint.images[0].url
-      : 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=400&q=80';
+      ? formatImageUrl(complaint.images[0].url)
+      : formatImageUrl(null);
 
   return (
     <div
@@ -18,6 +19,7 @@ export default function ComplaintCard({ complaint, onClick, onUpvote, showUpvote
         <div className="relative h-40 w-full bg-slate-100 overflow-hidden">
           <img
             src={thumbnail}
+            onError={handleImageError}
             alt={complaint.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

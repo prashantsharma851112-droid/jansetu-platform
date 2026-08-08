@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Filter, Search, UserCheck, AlertOctagon, Eye, RefreshCw, Phone, Mail, MapPin, Wrench, Shield, X, ExternalLink, Activity, Clock, Loader2, UserPlus } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '../common/Badge';
+import { formatImageUrl, handleImageError } from '../../utils/imageUrl';
 import API from '../../services/api';
 
 export default function ComplaintTable({ onSelectComplaint }) {
@@ -96,7 +97,22 @@ export default function ComplaintTable({ onSelectComplaint }) {
   };
 
   const handleExportCSV = async () => {
-    window.open('/api/admin/export/csv', '_blank');
+    try {
+      const response = await API.get('/admin/export/csv', {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', `jansetu-complaints-${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to export CSV. Please try again.');
+    }
   };
 
   const getProgressPercentage = (status) => {
@@ -270,7 +286,8 @@ export default function ComplaintTable({ onSelectComplaint }) {
             {/* Worker Info Header */}
             <div className="flex items-center gap-4 border-b border-slate-800 pb-4">
               <img
-                src={selectedWorkerDetails.worker.avatar || 'https://i.pravatar.cc/150'}
+                src={formatImageUrl(selectedWorkerDetails.worker.avatar)}
+                onError={handleImageError}
                 alt={selectedWorkerDetails.worker.name}
                 className="w-16 h-16 rounded-2xl object-cover border-2 border-teal-500/50 shadow-lg"
               />

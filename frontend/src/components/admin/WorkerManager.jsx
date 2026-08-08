@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Wrench, Phone, Mail, CheckCircle2, Shield, Loader2, Edit3, X, Save, Lock, Upload, Camera, ExternalLink, Activity, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { StatusBadge } from '../common/Badge';
+import { formatImageUrl, handleImageError } from '../../utils/imageUrl';
 import API from '../../services/api';
 
 export default function WorkerManager({ onSelectComplaint }) {
@@ -197,7 +199,8 @@ export default function WorkerManager({ onSelectComplaint }) {
           <div className="flex items-center gap-4 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
             <div className="relative">
               <img
-                src={form.avatar || 'https://i.pravatar.cc/150'}
+                src={formatImageUrl(form.avatar)}
+                onError={handleImageError}
                 alt="Worker DP Preview"
                 className="w-16 h-16 rounded-full object-cover border-2 border-amber-500/60 shadow shrink-0"
               />
@@ -323,7 +326,8 @@ export default function WorkerManager({ onSelectComplaint }) {
             <div className="flex items-center gap-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
               <div className="relative">
                 <img
-                  src={editingWorker.avatar || 'https://i.pravatar.cc/150'}
+                  src={formatImageUrl(editingWorker.avatar)}
+                  onError={handleImageError}
                   alt="Worker Avatar"
                   className="w-16 h-16 rounded-full object-cover border-2 border-teal-500/50 shrink-0 shadow"
                 />
@@ -432,7 +436,8 @@ export default function WorkerManager({ onSelectComplaint }) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
-                  src={w.avatar || 'https://i.pravatar.cc/150'}
+                  src={formatImageUrl(w.avatar)}
+                  onError={handleImageError}
                   alt={w.name}
                   className="w-10 h-10 rounded-full border border-amber-500/30 object-cover shadow"
                 />
@@ -492,7 +497,8 @@ export default function WorkerManager({ onSelectComplaint }) {
             {/* Worker Info Header */}
             <div className="flex items-center gap-4 border-b border-slate-800 pb-4">
               <img
-                src={selectedWorkerData.worker.avatar || 'https://i.pravatar.cc/150'}
+                src={formatImageUrl(selectedWorkerData.worker.avatar)}
+                onError={handleImageError}
                 alt={selectedWorkerData.worker.name}
                 className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-500/50 shadow-lg"
               />
@@ -606,7 +612,8 @@ export default function WorkerManager({ onSelectComplaint }) {
                             {c.images.map((img, imgIdx) => (
                               <img
                                 key={imgIdx}
-                                src={img.url}
+                                src={formatImageUrl(img.url)}
+                                onError={handleImageError}
                                 alt="Work proof"
                                 className="w-7 h-7 rounded-lg object-cover border border-slate-700"
                               />

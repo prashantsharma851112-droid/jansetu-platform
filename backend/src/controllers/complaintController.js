@@ -30,7 +30,7 @@ exports.createComplaint = async (req, res) => {
     const imageList = [];
     if (req.files && req.files.length > 0) {
       req.files.forEach((file) => {
-        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+        const fileUrl = `/uploads/${file.filename}`;
         imageList.push({
           url: fileUrl,
           stage: 'BEFORE',

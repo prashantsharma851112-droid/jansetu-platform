@@ -3,6 +3,7 @@ import { X, MapPin, ThumbsUp, Calendar, User, ShieldAlert, Star } from 'lucide-r
 import Timeline from './Timeline';
 import { StatusBadge, PriorityBadge } from './Badge';
 import API from '../../services/api';
+import { formatImageUrl, handleImageError } from '../../utils/imageUrl';
 
 export default function DetailModal({ complaintId, onClose, onUpvoted }) {
   const [data, setData] = useState(null);
@@ -99,12 +100,17 @@ export default function DetailModal({ complaintId, onClose, onUpvoted }) {
                     {data.complaint.images.map((img, i) => (
                       <a
                         key={i}
-                        href={img.url}
+                        href={formatImageUrl(img.url)}
                         target="_blank"
                         rel="noreferrer"
-                        className="group relative h-24 rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:ring-2 hover:ring-teal-500 transition"
+                        className="group relative h-24 rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:ring-2 hover:ring-teal-500 transition bg-slate-100"
                       >
-                        <img src={img.url} alt="Proof" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <img
+                          src={formatImageUrl(img.url)}
+                          onError={handleImageError}
+                          alt="Proof"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
                         <span className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-white text-[9px] font-bold text-center py-0.5 uppercase">
                           {img.stage} Photo
                         </span>
@@ -119,7 +125,8 @@ export default function DetailModal({ complaintId, onClose, onUpvoted }) {
                 <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <img
-                      src={data.complaint.assignedWorker.avatar || 'https://i.pravatar.cc/150'}
+                      src={formatImageUrl(data.complaint.assignedWorker.avatar)}
+                      onError={handleImageError}
                       alt="Worker"
                       className="w-10 h-10 rounded-full border border-blue-200 object-cover"
                     />
